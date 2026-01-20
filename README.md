@@ -175,22 +175,25 @@ let entries = [];
 let currentWeekStart = getMondayOfWeek(new Date());
 
 function getMondayOfWeek(date) {
-  const d = new Date(date); d.setHours(0,0,0,0);
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
   const day = d.getDay();
   const diff = day === 0 ? -6 : 1 - day;
   d.setDate(d.getDate() + diff);
   return d;
 }
 
+// Gefixte normalizeDate functie - gebruikt nu consistente lokale datum formatting
 function normalizeDate(input) {
   if (!input) return "";
-  if (typeof input === 'string' && input.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    return input; // Houd string als is, assumeert het is de gewenste datum
-  }
   const dt = new Date(input);
   if (isNaN(dt.getTime())) return "";
-  // Gebruik local date components voor consistente YYYY-MM-DD
-  return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+  
+  // Gebruik toLocaleDateString voor consistente YYYY-MM-DD in lokale timezone
+  const year = dt.getFullYear();
+  const month = String(dt.getMonth() + 1).padStart(2, '0');
+  const day = String(dt.getDate()).padStart(2, '0');
+  return `\( {year}- \){month}-${day}`;
 }
 
 function timeKey(t) {
@@ -209,11 +212,17 @@ function timeLabel(k) {
   return '';
 }
 
+// Gefixte isRecentEnough - gebruikt dezelfde normalizeDate logica
 function isRecentEnough(d) {
-  const g = new Date(d);
-  g.setHours(0,0,0,0); // Maak g local 00:00
-  const v = new Date(); v.setHours(0,0,0,0);
-  const min = new Date(v); min.setDate(min.getDate() - 7);
+  const normalizedDate = normalizeDate(d);
+  if (!normalizedDate) return false;
+  
+  const g = new Date(normalizedDate + 'T00:00:00'); // Maak Date object van de genormaliseerde datum
+  const v = new Date();
+  v.setHours(0, 0, 0, 0);
+  const min = new Date(v);
+  min.setDate(min.getDate() - 7);
+  
   return g >= min;
 }
 
@@ -221,6 +230,8 @@ async function loadEntries() {
   try {
     const res = await fetch(SHEET_URL);
     const data = await res.json();
+    console.log("Raw data from sheet:", data); // Voor debugging
+    
     entries = data.slice(1).map(r => ({
       datum: normalizeDate(r[0]),
       tijd: r[1],
@@ -228,9 +239,14 @@ async function loadEntries() {
       locatie: r[3],
       opmerking: r[4] || '',
       vadermee: r[5] || 'Nee'
-    }));
+    })).filter(e => e.datum); // Filter lege datums
+    
+    console.log("Processed entries:", entries); // Voor debugging
     renderAll();
-  } catch(e) { console.error("Fout bij laden:", e); }
+  } catch(e) { 
+    console.error("Fout bij laden:", e); 
+    alert("Fout bij laden van data. Controleer je Google Sheet URL.");
+  }
 }
 
 function getSlotStatus(datum, tKey) {
@@ -246,8 +262,8 @@ function getSlotStatus(datum, tKey) {
 
 function getDayIndicator(datum) {
   const dayEntries = entries.filter(e => e.datum === datum);
-  const heeftVader = dayEntries.some(e => e.locatie.includes('Vader'));
-  const heeftMoeder = dayEntries.some(e => e.locatie.includes('Moeder'));
+  const heeftVader = dayEntries.some(e => e.locatie && e.locatie.includes('Vader'));
+  const heeftMoeder = dayEntries.some(e => e.locatie && e.locatie.includes('Moeder'));
   
   if (heeftVader && heeftMoeder) return 'both';
   if (heeftVader) return 'vader';
@@ -343,11 +359,15 @@ modal.onclick = e => { if (e.target === modal) modal.classList.remove('active');
 
 form.onsubmit = async e => {
   e.preventDefault();
-  const datum = normalizeDate(form.datum.value);
+  const datumInput = form.datum.value;
+  const datum = normalizeDate(datumInput);
+  console.log("Datum input:", datumInput, "Normalized:", datum); // Debugging
+  
   if (!isRecentEnough(datum)) return alert("Maximaal 7 dagen terug boeken.");
   const key = timeKey(form.tijd.value);
   const locatie = form.locatie.value;
 
+  // Gefixte conflict check - gebruikt genormaliseerde datums
   const dayEntries = entries.filter(en => en.datum === datum && en.locatie === locatie);
   const hasWholeDay = dayEntries.some(en => en.tijd === 'T0');
   const isWholeDay = key === 'T0';
@@ -366,6 +386,7 @@ form.onsubmit = async e => {
     vadermee: form.vadermee.checked ? 'Ja' : 'Nee'
   };
 
+  console.log("Nieuwe entry:", entry); // Debugging
   entries.push(entry);
   try {
     await fetch(SHEET_URL, {
@@ -377,6 +398,7 @@ form.onsubmit = async e => {
     renderAll();
     form.reset();
     modal.classList.remove('active');
+    alert("Afspraak succesvol opgeslagen!");
   } catch(err) {
     console.error(err);
     alert("Opslaan mislukt – probeer opnieuw.");
@@ -384,6 +406,7 @@ form.onsubmit = async e => {
   }
 };
 
+// Test of loadEntries werkt
 loadEntries();
 </script>
 </body>
