@@ -5,7 +5,7 @@
   <title>Bezoekplanner</title>
   <style>
     :root {
-      --primary: #007aff;       /* Apple-blauw */
+      --primary: #007aff;
       --primary-dark: #0062cc;
       --bg: #f2f2f7;
       --card: #ffffff;
@@ -55,9 +55,9 @@
     .weeknav button {
       background: transparent;
       border: none;
-      font-size: 1.1rem;
+      font-size: 1.4rem;
       color: var(--primary);
-      padding: 8px 12px;
+      padding: 8px 16px;
       font-weight: 600;
       cursor: pointer;
     }
@@ -69,7 +69,7 @@
 
     .content {
       padding: 16px;
-      padding-bottom: 90px; /* ruimte voor bottom button */
+      padding-bottom: 100px;
     }
 
     .week-table {
@@ -87,23 +87,39 @@
 
     .week-table th {
       background: #f0f0f5;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--text-secondary);
       font-weight: 500;
+      white-space: nowrap;
+      line-height: 1.2;
+      padding: 10px 6px;
     }
 
     .slot {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px;
       padding: 8px;
       border-radius: 8px;
       font-size: 0.9rem;
       font-weight: 500;
-      margin: 4px 0;
+      min-height: 36px;
     }
 
     .free  { background: rgba(52, 199, 89, 0.15); color: var(--free); }
     .booked{ background: rgba(255, 149, 0, 0.15); color: var(--booked); }
     .full  { background: rgba(255, 59, 48, 0.15); color: var(--full); }
+
+    .vader-badge {
+      background: #0062cc;
+      color: white;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
 
     h2 {
       font-size: 1.3rem;
@@ -164,7 +180,6 @@
       display: inline-block;
     }
 
-    /* Floating action button */
     .fab {
       position: fixed;
       bottom: 24px;
@@ -175,7 +190,7 @@
       width: 60px;
       height: 60px;
       border-radius: 50%;
-      font-size: 2rem;
+      font-size: 2.2rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -188,7 +203,6 @@
 
     .fab:active { transform: translateX(-50%) scale(0.92); }
 
-    /* Modal */
     .modal {
       position: fixed;
       inset: 0;
@@ -295,9 +309,9 @@
     <thead>
       <tr>
         <th>Dag</th>
-        <th>10-12</th>
-        <th>15-17:30</th>
-        <th>18:30-20</th>
+        <th>10:00 – 12:00</th>
+        <th>15:00 – 17:30</th>
+        <th>18:30 – 20:00</th>
       </tr>
     </thead>
     <tbody id="weekBody"></tbody>
@@ -352,21 +366,28 @@
 </div>
 
 <script>
-// ────────────────────────────────────────────────
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbx_YzuFqcn8mZNeQLjlbp1vt8Ntd6S16RmawZSC4z_iql3pV2c-_dsXu1yBHNCKQmfa/exec";
 
 let entries = [];
-let currentWeekStart = new Date();
-currentWeekStart.setHours(0,0,0,0);
-const day = currentWeekStart.getDay();
-currentWeekStart.setDate(currentWeekStart.getDate() - (day === 0 ? 6 : day - 1)); // maandag
+let currentWeekStart = getMondayOfWeek(new Date());
 
-function normalizeDate(d) {
-  const dt = new Date(d);
+function getMondayOfWeek(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+
+function normalizeDate(input) {
+  if (!input) return "";
+  const dt = new Date(input);
+  if (isNaN(dt.getTime())) return "";
   return dt.toISOString().split('T')[0];
 }
 
-const timeKey = t => t.includes('10')?'T1':t.includes('15')?'T2':t.includes('18')?'T3':'';
+const timeKey = t => t.includes('10') ? 'T1' : t.includes('15') ? 'T2' : t.includes('18') ? 'T3' : '';
 const timeLabel = k => k==='T1'?'10:00–12:00':k==='T2'?'15:00–17:30':k==='T3'?'18:30–20:00':'';
 
 function isRecentEnough(d) {
@@ -389,15 +410,26 @@ async function loadEntries() {
       vadermee: r[5] || 'Nee'
     }));
     renderAll();
-  } catch(e) { console.error(e); }
+  } catch(e) { console.error("Fout bij laden:", e); }
 }
 
 function getSlotStatus(datum, tKey) {
   const matches = entries.filter(e => e.datum === datum && e.tijd === tKey);
-  if (matches.length === 0) return {text: 'Vrij', class: 'free'};
-  if (matches.length >= 2) return {text: 'Vol', class: 'full'};
-  const vader = matches[0].vadermee === 'Ja' ? ' + vader' : '';
-  return {text: 'Bezet'+vader, class: 'booked'};
+  
+  if (matches.length === 0) {
+    return { text: 'Vrij', class: 'free', vaderBadge: false };
+  }
+  
+  if (matches.length >= 2) {
+    return { text: 'Vol', class: 'full', vaderBadge: false };
+  }
+  
+  const heeftVaderMee = matches.some(e => e.vadermee === 'Ja');
+  return {
+    text: 'Bezet',
+    class: 'booked',
+    vaderBadge: heeftVaderMee
+  };
 }
 
 function renderWeek() {
@@ -410,11 +442,24 @@ function renderWeek() {
     const ds = normalizeDate(d);
 
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${d.toLocaleDateString('nl-NL', {weekday:'short', day:'numeric'})}</td>`;
+    const dayShort = d.toLocaleDateString('nl-NL', {weekday: 'short'}).replace('.', '');
+    tr.innerHTML = `<td>${dayShort} ${d.getDate()} ${d.toLocaleDateString('nl-NL', {month: 'short'})}</td>`;
 
     ['T1','T2','T3'].forEach(k => {
       const s = getSlotStatus(ds, k);
-      tr.innerHTML += `<td><div class="slot ${s.class}">${s.text}</div></td>`;
+      
+      let badgeHtml = '';
+      if (s.vaderBadge) {
+        badgeHtml = '<span class="vader-badge">Vader mee</span>';
+      }
+      
+      tr.innerHTML += `
+        <td>
+          <div class="slot ${s.class}">
+            ${s.text}
+            ${badgeHtml}
+          </div>
+        </td>`;
     });
 
     tbody.appendChild(tr);
@@ -453,7 +498,7 @@ function renderAll() {
   renderEntries();
 }
 
-// Navigatie
+// Events
 document.getElementById('prevWeek').onclick = () => {
   currentWeekStart.setDate(currentWeekStart.getDate() - 7);
   renderAll();
@@ -463,7 +508,6 @@ document.getElementById('nextWeek').onclick = () => {
   renderAll();
 };
 
-// Modal & form
 const modal = document.getElementById('modal');
 const fab = document.getElementById('fab');
 const closeModal = document.getElementById('closeModal');
