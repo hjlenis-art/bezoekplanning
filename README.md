@@ -15,6 +15,9 @@
       --booked: #ff9500;
       --full: #ff3b30;
       --border: #c7c7cc;
+      --moeder: #007aff;   /* blauw voor moeder */
+      --vader: #ff9500;    /* oranje voor vader */
+      --both: #af52de;     /* paars voor beide */
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -23,153 +26,54 @@
       color: var(--text);
       min-height: 100vh;
       line-height: 1.4;
-      font-size: 16px; /* iets kleiner voor mobiel */
+      font-size: 16px;
     }
-    header { 
-      background: white; 
-      border-bottom: 1px solid var(--border); 
-      position: sticky; 
-      top: 0; 
-      z-index: 10; 
-      height: 1px; /* bijna onzichtbaar, alleen border */
-    }
+    header { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; height: 1px; }
     .weeknav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 12px;
-      background: white;
-      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; padding: 10px 12px;
+      background: white; border-bottom: 1px solid var(--border);
     }
-    .weeknav button {
-      background: transparent;
-      border: none;
-      font-size: 1.5rem;
-      color: var(--primary);
-      padding: 6px 12px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .weeknav strong {
-      font-size: 1rem;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 60%;
-      text-align: center;
-    }
-    .content { 
-      padding: 12px 10px; 
-      padding-bottom: 90px; 
-    }
+    .weeknav button { background: transparent; border: none; font-size: 1.5rem; color: var(--primary); padding: 6px 12px; font-weight: 600; cursor: pointer; }
+    .weeknav strong { font-size: 1rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; text-align: center; }
+    .content { padding: 12px 10px; padding-bottom: 90px; }
     
-    .table-wrapper {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      margin: 0 -10px;
-      padding: 0 10px;
-    }
-    .week-table {
-      width: 100%;
-      min-width: 380px; /* smaller dan voorheen → minder scroll */
-      border-collapse: separate;
-      border-spacing: 0 6px;
-    }
+    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -10px; padding: 0 10px; }
+    .week-table { width: 100%; min-width: 380px; border-collapse: separate; border-spacing: 0 6px; }
     .week-table th, .week-table td {
-      padding: 8px 4px;
-      text-align: center;
-      background: white;
-      border-radius: 8px;
-      min-width: 80px; /* smaller kolommen */
-      font-size: 0.85rem;
+      padding: 8px 4px; text-align: center; background: white; border-radius: 8px; min-width: 80px; font-size: 0.85rem; position: relative;
     }
-    .week-table th {
-      background: #f0f0f5;
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      font-weight: 500;
-      white-space: nowrap;
-      padding: 6px 4px;
-      position: sticky;
-      top: 0;
-      z-index: 5;
-    }
+    .week-table th { background: #f0f0f5; font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; white-space: nowrap; padding: 6px 4px; position: sticky; top: 0; z-index: 5; }
     .week-table td:first-child {
-      position: sticky;
-      left: 0;
-      z-index: 4;
-      background: white;
-      min-width: 90px;
-      font-weight: 500;
-      font-size: 0.9rem;
-      padding-left: 8px;
-      text-align: left;
+      position: sticky; left: 0; z-index: 4; background: white; min-width: 90px; font-weight: 500; font-size: 0.9rem;
+      padding-left: 8px; text-align: left; cursor: pointer; user-select: none;
     }
-    .slot {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 4px;
-      border-radius: 6px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      min-height: 32px;
-      line-height: 1.2;
+    .vader-indicator {
+      position: absolute; top: 4px; right: 4px; font-size: 1.2rem; font-weight: bold; line-height: 1;
     }
+    .indicator-moeder { color: var(--moeder); }
+    .indicator-vader  { color: var(--vader); }
+    .indicator-both   { color: var(--both); }
+
+    .slot { display: flex; align-items: center; justify-content: center; padding: 6px 4px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; min-height: 32px; line-height: 1.2; }
     .free  { background: rgba(52, 199, 89, 0.18); color: var(--free); }
     .booked{ background: rgba(255, 149, 0, 0.18); color: var(--booked); }
     .full  { background: rgba(255, 59, 48, 0.18); color: var(--full); }
     .whole-day { background: rgba(255, 149, 0, 0.28); color: var(--booked); font-weight: 700; }
 
-    h2 { font-size: 1.25rem; margin: 20px 0 10px; color: var(--text); }
+    h2 { font-size: 1.25rem; margin: 20px 0 8px; color: var(--text); }
+    .legend { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px; padding: 8px; background: white; border-radius: 8px; border: 1px solid var(--border); }
+    .legend strong { color: var(--text); }
+    .legend span { margin-right: 12px; font-size: 1.1rem; }
+
     .entries-list { display: flex; flex-direction: column; gap: 10px; }
-    .entry-card {
-      background: white;
-      border-radius: 10px;
-      padding: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-      border: 1px solid var(--border);
-    }
-    .entry-card .top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 6px;
-      gap: 8px;
-    }
+    .entry-card { background: white; border-radius: 10px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+    .entry-card .top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px; }
     .entry-card .naam { font-weight: 600; font-size: 1.05rem; flex: 1; }
     .entry-card .datum-tijd { font-size: 0.82rem; color: var(--text-secondary); text-align: right; white-space: nowrap; }
     .entry-card .locatie { font-size: 0.9rem; margin: 3px 0; }
     .entry-card .opmerking { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
-    .vader-mee {
-      background: #e8f0fe;
-      color: #0062cc;
-      padding: 2px 7px;
-      border-radius: 10px;
-      font-size: 0.75rem;
-      margin-top: 6px;
-      display: inline-block;
-    }
-    .fab {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--primary);
-      color: white;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      font-size: 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 12px rgba(0,122,255,0.3);
-      border: none;
-      cursor: pointer;
-      z-index: 100;
-    }
+    .vader-mee { background: #e8f0fe; color: #0062cc; padding: 2px 7px; border-radius: 10px; font-size: 0.75rem; margin-top: 6px; display: inline-block; }
+    .fab { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; width: 56px; height: 56px; border-radius: 50%; font-size: 2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,122,255,0.3); border: none; cursor: pointer; z-index: 100; }
     .fab:active { transform: translateX(-50%) scale(0.94); }
 
     .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: flex-end; z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
@@ -202,6 +106,14 @@
 
 <div class="content">
   <h2>Deze week</h2>
+  
+  <div class="legend">
+    <strong>Legenda stipjes:</strong><br>
+    <span class="indicator-moeder">●</span> Iemand bij Moeder<br>
+    <span class="indicator-vader">●</span> Iemand bij Vader<br>
+    <span class="indicator-both">●</span> Beide locaties bezoek
+  </div>
+
   <div class="table-wrapper">
     <table class="week-table">
       <thead>
@@ -259,7 +171,6 @@
 </div>
 
 <script>
-// (de script blijft hetzelfde als in de vorige versie – geen wijzigingen nodig hier)
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbx_YzuFqcn8mZNeQLjlbp1vt8Ntd6S16RmawZSC4z_iql3pV2c-_dsXu1yBHNCKQmfa/exec";
 let entries = [];
 let currentWeekStart = getMondayOfWeek(new Date());
@@ -289,9 +200,9 @@ function timeKey(t) {
 
 function timeLabel(k) {
   if (k === 'T0') return 'Hele dag';
-  if (k === 'T1') return '10:00–12:00';
-  if (k === 'T2') return '15:00–17:30';
-  if (k === 'T3') return '18:30–20:00';
+  if (k === 'T1') return '10-12';
+  if (k === 'T2') return '15-17:30';
+  if (k === 'T3') return '18:30-20';
   return '';
 }
 
@@ -323,13 +234,38 @@ function getSlotStatus(datum, tKey) {
   const hasWholeDay = dayEntries.some(e => e.tijd === 'T0');
   const matches = dayEntries.filter(e => e.tijd === tKey);
 
-  if (hasWholeDay) {
-    return { text: 'Hele dag bezet', class: 'whole-day' };
-  }
-
+  if (hasWholeDay) return { text: 'Hele dag bezet', class: 'whole-day' };
   if (matches.length === 0) return { text: 'Vrij', class: 'free' };
   if (matches.length >= 2) return { text: 'Vol', class: 'full' };
   return { text: 'Bezet', class: 'booked' };
+}
+
+function getDayIndicator(datum) {
+  const dayEntries = entries.filter(e => e.datum === datum);
+  const heeftVader = dayEntries.some(e => e.locatie.includes('Vader'));
+  const heeftMoeder = dayEntries.some(e => e.locatie.includes('Moeder'));
+  
+  if (heeftVader && heeftMoeder) return 'both';
+  if (heeftVader) return 'vader';
+  if (heeftMoeder) return 'moeder';
+  return null;
+}
+
+function showDayDetails(datum) {
+  const dayEntries = entries.filter(e => e.datum === datum);
+  if (dayEntries.length === 0) {
+    alert(`Op ${datum} komt niemand.`);
+    return;
+  }
+
+  let message = `Afspraken op ${datum}:\n\n`;
+  dayEntries.forEach(e => {
+    const mee = e.vadermee === 'Ja' ? ' (Vader mee)' : '';
+    const opm = e.opmerking ? ` - ${e.opmerking}` : '';
+    message += `${e.naam} • ${timeLabel(e.tijd)}${mee} • ${e.locatie}${opm}\n`;
+  });
+
+  alert(message);
 }
 
 function renderWeek() {
@@ -341,10 +277,16 @@ function renderWeek() {
     const ds = normalizeDate(d);
     const tr = document.createElement('tr');
     
-    // Compacte dag-weergave: Ma 20 jan
     const dayShort = d.toLocaleDateString('nl-NL', {weekday: 'short'}).replace('.', '');
     const monthShort = d.toLocaleDateString('nl-NL', {month: 'short'});
-    tr.innerHTML = `<td>${dayShort} ${d.getDate()} ${monthShort}</td>`;
+    const indicator = getDayIndicator(ds);
+    let indicatorHtml = '';
+    if (indicator) {
+      const className = indicator === 'moeder' ? 'indicator-moeder' : indicator === 'vader' ? 'indicator-vader' : 'indicator-both';
+      indicatorHtml = `<span class="vader-indicator ${className}">●</span>`;
+    }
+    
+    tr.innerHTML = `<td onclick="showDayDetails('${ds}')">${dayShort} ${d.getDate()} ${monthShort}${indicatorHtml}</td>`;
     
     ['T1','T2','T3'].forEach(k => {
       const s = getSlotStatus(ds, k);
