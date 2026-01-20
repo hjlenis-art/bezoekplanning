@@ -100,7 +100,7 @@ function normalizeDate(d){
   if(!d) return "";
   let dt;
   if(typeof d === "string"){ dt = new Date(d); if(isNaN(dt)){const p=d.split("-"); dt=new Date(p[0],p[1]-1,p[2]);}}
-  else dt=new Date(d);
+  else dt = new Date(d);
   const yyyy=dt.getFullYear(), mm=String(dt.getMonth()+1).padStart(2,"0"), dd=String(dt.getDate()).padStart(2,"0");
   return `${yyyy}-${mm}-${dd}`;
 }
@@ -124,7 +124,7 @@ function slotText(datum, tijdKey){
   let txt="Vrij", bg="#c6efce", vaderMark="";
   if(relevant.length===1){ txt="1 boeking"; bg="#ffeb9c"; if(relevant[0].vadermee==="Ja") vaderMark=" ✅"; }
   if(relevant.length>1){ txt="Vol"; bg="#f4cccc"; if(relevant.some(r=>r.vadermee==="Ja")) vaderMark=" ✅"; }
-  return {txt:bg ? bg:"#fff", txt: txt+vaderMark};
+  return {txt: txt+vaderMark, bg: bg};
 }
 
 /* Update weekoverzicht */
@@ -138,7 +138,7 @@ function updateWeekOverview(){
     let html = `<td>${ds}</td>`;
     ["T1","T2","T3"].forEach(k=>{
       const s=slotText(ds,k);
-      html += `<td style="background:${s.bg};padding:4px;">${s.txt}</td>`;
+      row.innerHTML += `<td style="background:${s.bg};padding:4px;">${s.txt}</td>`;
     });
     row.innerHTML = html;
     tbody.appendChild(row);
@@ -177,13 +177,28 @@ visitForm.onsubmit=async e=>{
   e.preventDefault();
   const normalizedDatum=normalizeDate(datum.value);
   const key=timeKey(tijd.value);
+  const locatieValue = locatie.value;
+
   if(!isDatumToegestaan(normalizedDatum)) return alert("Maximaal 7 dagen terug boeken.");
-  if(entries.some(e=>e.datum===normalizedDatum && e.tijd===key)) return alert("Dit tijdstip is al bezet.");
-  const n={datum:normalizedDatum,tijd:key,naam:naam.value,locatie:locatie.value,opmerking:opmerking.value,vadermee:vadermee.checked?"Ja":"Nee"};
+  
+  // Blokkeer dubbel boeking alleen per locatie
+  if(entries.some(e=>e.datum===normalizedDatum && e.tijd===key && e.locatie===locatieValue)){
+    return alert("Dit tijdstip op deze locatie is al bezet.");
+  }
+
+  const n={datum:normalizedDatum,tijd:key,naam:naam.value,locatie:locatieValue,opmerking:opmerking.value,vadermee:vadermee.checked?"Ja":"Nee"};
   entries.push(n);
-  await fetch(SHEET_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(n)});
+
+  await fetch(SHEET_URL,{
+    method:"POST",
+    mode:"no-cors",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(n)
+  });
+
   updateTables();
-  visitForm.reset(); visitForm.classList.add("hidden");
+  visitForm.reset();
+  visitForm.classList.add("hidden");
 };
 
 loadEntries();
