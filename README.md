@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
@@ -17,58 +18,182 @@
       --border: #c7c7cc;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.4; font-size: 17px; }
-    header { background: white; padding: 16px; text-align: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
-    h1 { font-size: 1.5rem; font-weight: 600; margin: 0; }
-    .weeknav { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: white; border-bottom: 1px solid var(--border); }
-    .weeknav button { background: transparent; border: none; font-size: 1.4rem; color: var(--primary); padding: 8px 16px; font-weight: 600; cursor: pointer; }
-    .weeknav strong { font-size: 1.1rem; font-weight: 600; }
-    .content { padding: 16px; padding-bottom: 100px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.4;
+      font-size: 16px; /* iets kleiner voor mobiel */
+    }
+    header { 
+      background: white; 
+      border-bottom: 1px solid var(--border); 
+      position: sticky; 
+      top: 0; 
+      z-index: 10; 
+      height: 1px; /* bijna onzichtbaar, alleen border */
+    }
+    .weeknav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: white;
+      border-bottom: 1px solid var(--border);
+    }
+    .weeknav button {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--primary);
+      padding: 6px 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .weeknav strong {
+      font-size: 1rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 60%;
+      text-align: center;
+    }
+    .content { 
+      padding: 12px 10px; 
+      padding-bottom: 90px; 
+    }
     
-    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 0 16px; }
-    .week-table { width: 100%; min-width: 480px; border-collapse: separate; border-spacing: 0 8px; }
-    .week-table th, .week-table td { padding: 12px 8px; text-align: center; background: white; border-radius: 10px; min-width: 110px; }
-    .week-table th { background: #f0f0f5; font-size: 0.82rem; color: var(--text-secondary); font-weight: 500; white-space: nowrap; line-height: 1.2; padding: 10px 6px; position: sticky; top: 0; z-index: 5; }
-    .week-table td:first-child { position: sticky; left: 0; z-index: 4; background: white; min-width: 100px; font-weight: 500; }
-    .slot { display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; min-height: 36px; }
-    .free  { background: rgba(52, 199, 89, 0.15); color: var(--free); }
-    .booked{ background: rgba(255, 149, 0, 0.15); color: var(--booked); }
-    .full  { background: rgba(255, 59, 48, 0.15); color: var(--full); }
-    .whole-day { background: rgba(255, 149, 0, 0.25); color: var(--booked); font-weight: 600; }
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -10px;
+      padding: 0 10px;
+    }
+    .week-table {
+      width: 100%;
+      min-width: 380px; /* smaller dan voorheen → minder scroll */
+      border-collapse: separate;
+      border-spacing: 0 6px;
+    }
+    .week-table th, .week-table td {
+      padding: 8px 4px;
+      text-align: center;
+      background: white;
+      border-radius: 8px;
+      min-width: 80px; /* smaller kolommen */
+      font-size: 0.85rem;
+    }
+    .week-table th {
+      background: #f0f0f5;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      white-space: nowrap;
+      padding: 6px 4px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .week-table td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 4;
+      background: white;
+      min-width: 90px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      padding-left: 8px;
+      text-align: left;
+    }
+    .slot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 4px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      min-height: 32px;
+      line-height: 1.2;
+    }
+    .free  { background: rgba(52, 199, 89, 0.18); color: var(--free); }
+    .booked{ background: rgba(255, 149, 0, 0.18); color: var(--booked); }
+    .full  { background: rgba(255, 59, 48, 0.18); color: var(--full); }
+    .whole-day { background: rgba(255, 149, 0, 0.28); color: var(--booked); font-weight: 700; }
 
-    h2 { font-size: 1.3rem; margin: 24px 0 12px; color: var(--text); }
-    .entries-list { display: flex; flex-direction: column; gap: 12px; }
-    .entry-card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border); }
-    .entry-card .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .entry-card .naam { font-weight: 600; font-size: 1.1rem; }
-    .entry-card .datum-tijd { font-size: 0.9rem; color: var(--text-secondary); }
-    .entry-card .locatie { font-size: 0.95rem; margin: 4px 0; }
-    .entry-card .opmerking { font-size: 0.9rem; color: var(--text-secondary); margin-top: 6px; }
-    .vader-mee { background: #e8f0fe; color: #0062cc; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; align-self: flex-start; margin-top: 8px; display: inline-block; }
-    .fab { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; width: 60px; height: 60px; border-radius: 50%; font-size: 2.2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,122,255,0.3); border: none; cursor: pointer; z-index: 100; transition: transform 0.2s; }
-    .fab:active { transform: translateX(-50%) scale(0.92); }
+    h2 { font-size: 1.25rem; margin: 20px 0 10px; color: var(--text); }
+    .entries-list { display: flex; flex-direction: column; gap: 10px; }
+    .entry-card {
+      background: white;
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+    }
+    .entry-card .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+    .entry-card .naam { font-weight: 600; font-size: 1.05rem; flex: 1; }
+    .entry-card .datum-tijd { font-size: 0.82rem; color: var(--text-secondary); text-align: right; white-space: nowrap; }
+    .entry-card .locatie { font-size: 0.9rem; margin: 3px 0; }
+    .entry-card .opmerking { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
+    .vader-mee {
+      background: #e8f0fe;
+      color: #0062cc;
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      margin-top: 6px;
+      display: inline-block;
+    }
+    .fab {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary);
+      color: white;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,122,255,0.3);
+      border: none;
+      cursor: pointer;
+      z-index: 100;
+    }
+    .fab:active { transform: translateX(-50%) scale(0.94); }
 
     .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: flex-end; z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
     .modal.active { opacity: 1; visibility: visible; }
-    .modal-content { background: white; width: 100%; max-height: 90vh; border-radius: 20px 20px 0 0; padding: 24px 20px; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s ease; }
+    .modal-content { background: white; width: 100%; max-height: 92vh; border-radius: 20px 20px 0 0; padding: 20px 16px; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s ease; }
     .modal.active .modal-content { transform: translateY(0); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .close-btn { background: none; border: none; font-size: 1.8rem; color: var(--text-secondary); cursor: pointer; }
-    form label { display: block; margin: 16px 0 6px; font-weight: 600; font-size: 0.95rem; color: var(--text); }
-    input, select { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; background: #f9f9f9; }
-    .checkbox-wrapper { display: flex; align-items: center; gap: 10px; margin: 20px 0; }
-    .submit-btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; margin-top: 20px; cursor: pointer; }
+    form label { display: block; margin: 14px 0 5px; font-weight: 600; font-size: 0.95rem; color: var(--text); }
+    input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; background: #f9f9f9; }
+    .checkbox-wrapper { display: flex; align-items: center; gap: 10px; margin: 16px 0; }
+    .submit-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 600; margin-top: 16px; cursor: pointer; }
 
     @media (min-width: 500px) {
-      .content { max-width: 480px; margin: 0 auto; }
-      .fab { left: calc(50% + 220px); transform: none; }
+      .content { max-width: 460px; margin: 0 auto; padding: 16px; }
+      .fab { left: calc(50% + 200px); transform: none; }
       .table-wrapper { margin: 0; padding: 0; overflow-x: visible; }
       .week-table { min-width: auto; }
     }
   </style>
 </head>
 <body>
-<header><h1>Bezoekplanner</h1></header>
+<header></header>
 
 <div class="weeknav">
   <button id="prevWeek">◀</button>
@@ -83,9 +208,9 @@
       <thead>
         <tr>
           <th>Dag</th>
-          <th>10:00 – 12:00</th>
-          <th>15:00 – 17:30</th>
-          <th>18:30 – 20:00</th>
+          <th>10-12</th>
+          <th>15-17:30</th>
+          <th>18:30-20</th>
         </tr>
       </thead>
       <tbody id="weekBody"></tbody>
@@ -135,6 +260,7 @@
 </div>
 
 <script>
+// (de script blijft hetzelfde als in de vorige versie – geen wijzigingen nodig hier)
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbx_YzuFqcn8mZNeQLjlbp1vt8Ntd6S16RmawZSC4z_iql3pV2c-_dsXu1yBHNCKQmfa/exec";
 let entries = [];
 let currentWeekStart = getMondayOfWeek(new Date());
@@ -202,12 +328,8 @@ function getSlotStatus(datum, tKey) {
     return { text: 'Hele dag bezet', class: 'whole-day' };
   }
 
-  if (matches.length === 0) {
-    return { text: 'Vrij', class: 'free' };
-  }
-  if (matches.length >= 2) {
-    return { text: 'Vol', class: 'full' };
-  }
+  if (matches.length === 0) return { text: 'Vrij', class: 'free' };
+  if (matches.length >= 2) return { text: 'Vol', class: 'full' };
   return { text: 'Bezet', class: 'booked' };
 }
 
@@ -219,8 +341,11 @@ function renderWeek() {
     d.setDate(d.getDate() + i);
     const ds = normalizeDate(d);
     const tr = document.createElement('tr');
+    
+    // Compacte dag-weergave: Ma 20 jan
     const dayShort = d.toLocaleDateString('nl-NL', {weekday: 'short'}).replace('.', '');
-    tr.innerHTML = `<td>${dayShort} ${d.getDate()} ${d.toLocaleDateString('nl-NL', {month: 'short'})}</td>`;
+    const monthShort = d.toLocaleDateString('nl-NL', {month: 'short'});
+    tr.innerHTML = `<td>${dayShort} ${d.getDate()} ${monthShort}</td>`;
     
     ['T1','T2','T3'].forEach(k => {
       const s = getSlotStatus(ds, k);
@@ -253,13 +378,12 @@ function renderEntries() {
 function renderAll() {
   const end = new Date(currentWeekStart);
   end.setDate(end.getDate() + 6);
-  const fmt = d => d.toLocaleDateString('nl-NL', {day:'numeric', month:'long'});
+  const fmt = d => d.toLocaleDateString('nl-NL', {day:'numeric', month:'short'});
   document.getElementById('weekLabel').textContent = `${fmt(currentWeekStart)} – ${fmt(end)}`;
   renderWeek();
   renderEntries();
 }
 
-// Events
 document.getElementById('prevWeek').onclick = () => { currentWeekStart.setDate(currentWeekStart.getDate() - 7); renderAll(); };
 document.getElementById('nextWeek').onclick = () => { currentWeekStart.setDate(currentWeekStart.getDate() + 7); renderAll(); };
 
@@ -279,7 +403,6 @@ form.onsubmit = async e => {
   const key = timeKey(form.tijd.value);
   const locatie = form.locatie.value;
 
-  // Extra check voor hele dag conflict
   const dayEntries = entries.filter(en => en.datum === datum && en.locatie === locatie);
   const hasWholeDay = dayEntries.some(en => en.tijd === 'T0');
   const isWholeDay = key === 'T0';
