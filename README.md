@@ -37,7 +37,7 @@
   </select>
 
   <label>Naam bezoeker(s)</label>
-  <input type="text" id="naam" placeholder="Bijv. Jan & Petra + kinderen" required>
+  <input type="text" id="naam" placeholder="Bijv. Henk - Diana - Vasco" required>
 
   <label>Datum bezoek</label>
   <input type="date" id="datum" min="2026-01-17" required>
