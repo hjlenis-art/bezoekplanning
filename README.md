@@ -6,29 +6,19 @@
 <style>
 body { font-family: Arial, sans-serif; background:#f4f6f8; padding:10px; }
 .container { max-width:800px; margin:auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
-
 h1,h2 { text-align:center; margin-top:10px; }
 button { padding:10px 14px; background:#0078d4; color:#fff; border:none; border-radius:5px; font-size:16px; cursor:pointer; }
 button:hover { background:#005fa3; }
-
 input,select { width:100%; padding:8px; margin-top:5px; font-size:14px; }
 label { display:block; margin-top:10px; font-weight:bold; }
-
 .hidden { display:none; }
-.weeknav { text-align:center; margin-bottom:10px; }
-
-.weekCards { display:flex; overflow-x:auto; gap:10px; padding:5px 0; }
-.weekCard { min-width:120px; background:#eef4ff; border-radius:8px; padding:8px; text-align:center; flex-shrink:0; }
-.slot { padding:3px; border-radius:4px; margin-top:2px; font-size:13px; }
-
-@media (max-width:600px){
-  .weekCard { min-width:100px; padding:6px; }
-  .slot { font-size:12px; padding:2px; }
-  input, select { font-size:13px; padding:6px; }
-  button { font-size:14px; padding:8px 10px; }
-}
 table { width:100%; border-collapse:collapse; margin-top:10px; text-align:center; font-size:14px; }
 th,td { border:1px solid #aaa; padding:6px; }
+@media (max-width:600px){
+  th,td { font-size:12px; padding:4px; }
+  input,select { font-size:13px; padding:6px; }
+  button { font-size:14px; padding:8px 10px; }
+}
 </style>
 </head>
 <body>
@@ -37,12 +27,22 @@ th,td { border:1px solid #aaa; padding:6px; }
 
 <!-- Weekoverzicht -->
 <h2>Weekoverzicht</h2>
-<div class="weeknav">
+<div class="weeknav" style="text-align:center;margin-bottom:5px;">
 <button id="prevWeek">◀ Vorige</button>
 <strong id="weekLabel"></strong>
 <button id="nextWeek">Volgende ▶</button>
 </div>
-<div id="weekCards" class="weekCards"></div>
+<table id="weekOverview">
+<thead>
+<tr>
+<th>Datum</th>
+<th>10:00–12:00</th>
+<th>15:00–17:30</th>
+<th>18:30–20:00</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
 
 <!-- Inschrijvingen -->
 <h2>Inschrijvingen</h2>
@@ -113,32 +113,42 @@ async function loadEntries(){
   try{
     const r=await fetch(SHEET_URL);
     const d=await r.json();
-    entries=d.slice(1).map(r=>({datum:normalizeDate(r[0]),tijd:timeKey(r[1]),naam:r[2],locatie:r[3],opmerking:r[4],vadermee:r[5]}));
+    entries=d.slice(1).map(r=>({datum:normalizeDate(r[0]),tijd:r[1],naam:r[2],locatie:r[3],opmerking:r[4],vadermee:r[5]}));
     updateTables();
   }catch(e){ console.error(e); }
 }
 
-/* Weekoverzicht kaartjes */
-function updateWeekCards(){
-  const container=document.getElementById("weekCards"); container.innerHTML="";
+/* Slot status met vader mee */
+function slotText(datum, tijdKey){
+  const relevant = entries.filter(e=>e.datum===datum && e.tijd===tijdKey);
+  let txt="Vrij", bg="#c6efce", vaderMark="";
+  if(relevant.length===1){ txt="1 boeking"; bg="#ffeb9c"; if(relevant[0].vadermee==="Ja") vaderMark=" ✅"; }
+  if(relevant.length>1){ txt="Vol"; bg="#f4cccc"; if(relevant.some(r=>r.vadermee==="Ja")) vaderMark=" ✅"; }
+  return {txt:bg ? bg:"#fff", txt: txt+vaderMark};
+}
+
+/* Update weekoverzicht */
+function updateWeekOverview(){
+  const tbody=document.querySelector("#weekOverview tbody");
+  tbody.innerHTML="";
   for(let i=0;i<7;i++){
     const d=new Date(currentWeekStart); d.setDate(d.getDate()+i);
-    const ds=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-    let html=`<div class="weekCard"><div style="font-weight:bold">${ds}</div>`;
+    const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    const row = document.createElement("tr");
+    let html = `<td>${ds}</td>`;
     ["T1","T2","T3"].forEach(k=>{
-      const bezet=entries.some(e=>e.datum===ds && e.tijd===k);
-      let bg=bezet?"#ffeb9c":"#c6efce";
-      let txt=bezet?"Bezet":"Vrij";
-      html+=`<div class="slot" style="background:${bg}">${timeLabel(k)} ${txt}</div>`;
+      const s=slotText(ds,k);
+      html += `<td style="background:${s.bg};padding:4px;">${s.txt}</td>`;
     });
-    html+="</div>";
-    container.innerHTML+=html;
+    row.innerHTML = html;
+    tbody.appendChild(row);
   }
 }
 
-/* Inschrijvingen tabel */
+/* Update inschrijvingen tabel */
 function updateInschrijvingen(){
-  const tbody=document.querySelector("#inschrijvingen tbody"); tbody.innerHTML="";
+  const tbody=document.querySelector("#inschrijvingen tbody");
+  tbody.innerHTML="";
   entries.forEach(e=>{
     tbody.innerHTML+=`<tr>
       <td>${e.naam}</td><td>${e.datum}</td><td>${timeLabel(e.tijd)}</td>
@@ -147,11 +157,11 @@ function updateInschrijvingen(){
   });
 }
 
-/* Totaal update */
+/* Update alles */
 function updateTables(){
   const end=new Date(currentWeekStart); end.setDate(end.getDate()+6);
   weekLabel.innerText=currentWeekStart.toLocaleDateString()+" – "+end.toLocaleDateString();
-  updateWeekCards();
+  updateWeekOverview();
   updateInschrijvingen();
 }
 
