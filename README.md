@@ -1,177 +1,189 @@
+<!DOCTYPE html>
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
 <title>Bezoekplanning Revalidatie</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body { font-family: Arial, sans-serif; background: #f4f6f8; padding: 20px; }
-  .container { max-width:700px; margin:auto; background:#fff; padding:25px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
-  h1 { text-align:center; }
-  label { display:block; margin-top:15px; font-weight:bold; }
-  input, select { width:100%; padding:10px; margin-top:5px; }
-  .checkbox { margin-top:10px; }
-  button { margin-top:25px; width:100%; padding:12px; background:#0078d4; color:#fff; border:none; font-size:16px; border-radius:5px; cursor:pointer; }
-  button:hover { background:#005fa3; }
-  .info { background:#eef4ff; padding:15px; border-radius:5px; margin-bottom:20px; font-size:14px; }
-  table { border-collapse:collapse; text-align:center; width:100%; margin-top:10px; }
-  th, td { border:1px solid #aaa; padding:8px; }
+body { font-family: Arial, sans-serif; background:#f4f6f8; padding:20px; }
+.container { max-width:750px; margin:auto; background:#fff; padding:25px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+h1,h2 { text-align:center; }
+label { display:block; margin-top:15px; font-weight:bold; }
+input,select { width:100%; padding:10px; margin-top:5px; }
+button { margin-top:25px; width:100%; padding:12px; background:#0078d4; color:#fff; border:none; border-radius:5px; font-size:16px; cursor:pointer; }
+button:hover { background:#005fa3; }
+table { width:100%; border-collapse:collapse; margin-top:10px; text-align:center; }
+th,td { border:1px solid #aaa; padding:8px; }
+.info { background:#eef4ff; padding:15px; border-radius:5px; margin-bottom:20px; }
+.weeknav { text-align:center; margin-bottom:10px; }
+.weeknav button { width:auto; padding:6px 12px; }
 </style>
 </head>
+
 <body>
 <div class="container">
 <h1>Bezoekplanning</h1>
 
 <div class="info">
-  <strong>Bezoektijden revalidatiecentrum:</strong><br>
-  Doordeweeks: 15:00 – 17:30 en 18:30 – 20:00<br>
-  Weekend: 10:00 – 12:00<br>
-  Startdatum planning: <strong>17 januari 2026</strong>
+<strong>Bezoektijden revalidatiecentrum:</strong><br>
+Doordeweeks: 15:00 – 17:30 en 18:30 – 20:00<br>
+Weekend: 10:00 – 12:00<br>
+Start planning: <strong>17 januari 2026</strong>
 </div>
 
 <form id="visitForm">
-  <label>Waar gaat het bezoek naartoe?</label>
-  <select id="locatie" required>
-    <option value="">Maak een keuze</option>
-    <option>Moeder – Revalidatiecentrum</option>
-    <option>Vader – Thuis</option>
-  </select>
+<label>Locatie</label>
+<select id="locatie" required>
+<option value="">Maak keuze</option>
+<option>Moeder – Revalidatiecentrum</option>
+<option>Vader – Thuis</option>
+</select>
 
-  <label>Naam bezoeker(s)</label>
-  <input type="text" id="naam" placeholder="Bijv. Henk - Diana - Vasco" required>
+<label>Naam</label>
+<input id="naam" required>
 
-  <label>Datum bezoek</label>
-  <input type="date" id="datum" min="2026-01-17" required>
+<label>Datum</label>
+<input type="date" id="datum" min="2026-01-17" required>
 
-  <label>Tijdstip</label>
-  <select id="tijd" required>
-    <option value="">Kies tijdstip</option>
-    <option>15:00 – 17:30 (doordeweeks)</option>
-    <option>18:30 – 20:00 (doordeweeks)</option>
-    <option>10:00 – 12:00 (weekend)</option>
-    <option>Ochtend (Vader)</option>
-    <option>Middag (Vader)</option>
-    <option>Avond (Vader)</option>
-  </select>
+<label>Tijd</label>
+<select id="tijd" required>
+<option value="">Kies</option>
+<option>10:00 – 12:00</option>
+<option>15:00 – 17:30</option>
+<option>18:30 – 20:00</option>
+</select>
 
-  <div class="checkbox">
-    <label><input type="checkbox" id="vadermee"> Vader wordt meegenomen naar moeder</label>
-  </div>
+<label>Opmerking</label>
+<input id="opmerking">
 
-  <label>Opmerking (optioneel)</label>
-  <input type="text" id="opmerking" placeholder="Bijv. wij halen vader thuis op">
+<label><input type="checkbox" id="vadermee"> Vader mee</label>
 
-  <button type="submit">Inschrijven</button>
+<button type="submit">Inschrijven</button>
 </form>
 
 <hr>
 
-<h2>Weekoverzicht beschikbaarheid – Moeder (Revalidatie)</h2>
-<div style="margin-bottom:10px;">
-  <button id="prevWeek" type="button">◀ Vorige week</button>
-  <strong id="weekLabel" style="margin:0 10px;">Week 3 (12–18 jan 2026)</strong>
-  <button id="nextWeek" type="button">Volgende week ▶</button>
+<h2>Weekoverzicht</h2>
+<div class="weeknav">
+<button id="prevWeek">◀ Vorige</button>
+<strong id="weekLabel"></strong>
+<button id="nextWeek">Volgende ▶</button>
 </div>
-<p>Groen = 0 boekingen | Oranje = 1 boeking | Rood = 2 boekingen (vol)</p>
+
+<p>Groen = vrij | Oranje = 1 boeking | Rood = vol</p>
+
 <table id="planning">
-  <thead>
-    <tr><th>Datum</th><th>10:00 – 12:00</th><th>15:00 – 17:30</th><th>18:30 – 20:00</th></tr>
-  </thead>
-  <tbody></tbody>
+<thead>
+<tr>
+<th>Datum</th>
+<th>10:00–12:00</th>
+<th>15:00–17:30</th>
+<th>18:30–20:00</th>
+</tr>
+</thead>
+<tbody></tbody>
 </table>
 
-<h2 style="margin-top:30px;">Inschrijvingen</h2>
+<h2>Inschrijvingen</h2>
 <table id="inschrijvingen">
-  <thead>
-    <tr><th>Naam</th><th>Locatie</th><th>Datum</th><th>Tijd</th><th>Opmerking</th><th>Vader mee?</th></tr>
-  </thead>
-  <tbody></tbody>
+<thead>
+<tr>
+<th>Naam</th><th>Datum</th><th>Tijd</th><th>Locatie</th><th>Opmerking</th><th>Vader mee</th>
+</tr>
+</thead>
+<tbody></tbody>
 </table>
-
 </div>
 
 <script>
-// === CONFIG: URL van je Google WebApp ===
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbx_YzuFqcn8mZNeQLjlbp1vt8Ntd6S16RmawZSC4z_iql3pV2c-_dsXu1yBHNCKQmfa/exec";
 
-// Data ophalen uit Google Sheet
 let entries = [];
+let currentWeekStart = new Date("2026-01-17");
+
+function normalize(t){
+return t.replace(/\s/g,"").replace("–","-");
+}
 
 async function loadEntries(){
-  const res = await fetch(SHEET_URL);
-  const data = await res.json();
-  // eerste regel headers weghalen
-  entries = data.slice(1).map(r => ({
-    datum: r[0],
-    tijd: r[1],
-    naam: r[2],
-    locatie: r[3],
-    opmerking: r[4],
-    vadermee: r[5]
-  }));
-  updateTables();
+try{
+const r = await fetch(SHEET_URL);
+const d = await r.json();
+entries = d.slice(1).map(r=>({
+datum:r[0], tijd:r[1], naam:r[2],
+locatie:r[3], opmerking:r[4], vadermee:r[5]
+}));
+updateTables();
+}catch(e){ console.error(e); }
 }
 
-// Form submit
-document.getElementById("visitForm").addEventListener("submit", e=>{
-  e.preventDefault();
-  const entry = {
-    datum: document.getElementById("datum").value,
-    tijd: document.getElementById("tijd").value,
-    naam: document.getElementById("naam").value,
-    locatie: document.getElementById("locatie").value,
-    opmerking: document.getElementById("opmerking").value,
-    vadermee: document.getElementById("vadermee").checked ? "Ja" : "Nee"
-  };
-  // In Google Form invullen via POST kan, hier doen we demo via alert
-  alert("Je inschrijving is geregistreerd! Voor live versie wordt dit opgeslagen in Google Sheet.");
-  // Voeg toe aan lokale entries (direct zichtbaar)
-  entries.push(entry);
-  updateTables();
-  document.getElementById("visitForm").reset();
-});
-
-// Update weekplanning en inschrijvingen
 function updateTables(){
-  const tbody = document.querySelector("#planning tbody");
-  tbody.innerHTML = "";
-  // voorbeeld: 7 dagen vanaf 17 jan
-  const start = new Date("2026-01-17");
-  for(let i=0;i<7;i++){
-    const d = new Date(start);
-    d.setDate(start.getDate()+i);
-    const datumStr = d.toISOString().split("T")[0];
-    const row = document.createElement("tr");
-    row.innerHTML = `<td>${datumStr}</td>
-      <td style="background:${colorFor(datumStr,"10:00 – 12:00")}">${labelFor(datumStr,"10:00 – 12:00")}</td>
-      <td style="background:${colorFor(datumStr,"15:00 – 17:30")}">${labelFor(datumStr,"15:00 – 17:30")}</td>
-      <td style="background:${colorFor(datumStr,"18:30 – 20:00")}">${labelFor(datumStr,"18:30 – 20:00")}</td>`;
-    tbody.appendChild(row);
-  }
+const tbody = document.querySelector("#planning tbody");
+tbody.innerHTML="";
+const weekEnd = new Date(currentWeekStart);
+weekEnd.setDate(weekEnd.getDate()+6);
 
-  // Inschrijvingen table
-  const tb2 = document.querySelector("#inschrijvingen tbody");
-  tb2.innerHTML = "";
-  entries.forEach(e=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${e.naam}</td><td>${e.locatie}</td><td>${e.datum}</td><td>${e.tijd}</td><td>${e.opmerking}</td><td>${e.vadermee}</td>`;
-    tb2.appendChild(tr);
-  });
+document.getElementById("weekLabel").innerText =
+currentWeekStart.toLocaleDateString()+" – "+weekEnd.toLocaleDateString();
+
+for(let i=0;i<7;i++){
+const d = new Date(currentWeekStart);
+d.setDate(d.getDate()+i);
+const ds = d.toISOString().split("T")[0];
+
+const row = document.createElement("tr");
+row.innerHTML = `
+<td>${ds}</td>
+${slotCell(ds,"10:00 – 12:00")}
+${slotCell(ds,"15:00 – 17:30")}
+${slotCell(ds,"18:30 – 20:00")}
+`;
+tbody.appendChild(row);
 }
 
-// Bepaal kleur op basis van aantal inschrijvingen
-function colorFor(datum,tijd){
-  const count = entries.filter(e=>e.datum===datum && e.tijd===tijd).length;
-  if(count==0) return "#c6efce";
-  if(count==1) return "#ffc7ce";
-  return "#ff0000";
+const tb2 = document.querySelector("#inschrijvingen tbody");
+tb2.innerHTML="";
+entries.forEach(e=>{
+tb2.innerHTML += `<tr>
+<td>${e.naam}</td><td>${e.datum}</td><td>${e.tijd}</td>
+<td>${e.locatie}</td><td>${e.opmerking}</td><td>${e.vadermee}</td>
+</tr>`;
+});
 }
 
-function labelFor(datum,tijd){
-  const count = entries.filter(e=>e.datum===datum && e.tijd===tijd).length;
-  if(count==0) return "Vrij";
-  if(count==1) return "Bezet";
-  return "Vol";
+function slotCell(datum,tijd){
+const c = entries.filter(e =>
+e.datum===datum && normalize(e.tijd)===normalize(tijd)
+).length;
+let bg="#c6efce", txt="Vrij";
+if(c===1){ bg="#ffeb9c"; txt="1 boeking"; }
+if(c>=2){ bg="#f4cccc"; txt="Vol"; }
+return `<td style="background:${bg}">${txt}</td>`;
 }
+
+document.getElementById("prevWeek").onclick=()=>{
+currentWeekStart.setDate(currentWeekStart.getDate()-7);
+updateTables();
+};
+document.getElementById("nextWeek").onclick=()=>{
+currentWeekStart.setDate(currentWeekStart.getDate()+7);
+updateTables();
+};
+
+document.getElementById("visitForm").onsubmit=e=>{
+e.preventDefault();
+entries.push({
+datum:datum.value,
+tijd:tijd.value,
+naam:naam.value,
+locatie:locatie.value,
+opmerking:opmerking.value,
+vadermee:vadermee.checked?"Ja":"Nee"
+});
+updateTables();
+e.target.reset();
+alert("Inschrijving zichtbaar (demo).");
+};
 
 loadEntries();
 </script>
