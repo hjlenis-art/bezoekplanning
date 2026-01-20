@@ -15,9 +15,9 @@
       --booked: #ff9500;
       --full: #ff3b30;
       --border: #c7c7cc;
-      --moeder: #007aff;
-      --vader: #ff9500;
-      --both: #af52de;
+      --moeder: #007aff;   /* blauw voor moeder */
+      --vader: #ff9500;    /* oranje voor vader */
+      --both: #af52de;     /* paars voor beide */
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -170,7 +170,6 @@
 </div>
 
 <script>
-// === De rest van de script blijft precies hetzelfde ===
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbx_YzuFqcn8mZNeQLjlbp1vt8Ntd6S16RmawZSC4z_iql3pV2c-_dsXu1yBHNCKQmfa/exec";
 let entries = [];
 let currentWeekStart = getMondayOfWeek(new Date());
@@ -185,9 +184,13 @@ function getMondayOfWeek(date) {
 
 function normalizeDate(input) {
   if (!input) return "";
+  if (typeof input === 'string' && input.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return input; // Houd string als is, assumeert het is de gewenste datum
+  }
   const dt = new Date(input);
   if (isNaN(dt.getTime())) return "";
-  return dt.toISOString().split('T')[0];
+  // Gebruik local date components voor consistente YYYY-MM-DD
+  return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
 }
 
 function timeKey(t) {
@@ -208,6 +211,7 @@ function timeLabel(k) {
 
 function isRecentEnough(d) {
   const g = new Date(d);
+  g.setHours(0,0,0,0); // Maak g local 00:00
   const v = new Date(); v.setHours(0,0,0,0);
   const min = new Date(v); min.setDate(min.getDate() - 7);
   return g >= min;
@@ -262,7 +266,7 @@ function showDayDetails(datum) {
   dayEntries.forEach(e => {
     const mee = e.vadermee === 'Ja' ? ' (Vader mee)' : '';
     const opm = e.opmerking ? ` - ${e.opmerking}` : '';
-    message += `${e.naam} • ${timeLabel(e.tijd)}${mee} • ${e.locatie}${opm}\n`;
+    message += `${e.naam} • \( {timeLabel(e.tijd)} \){mee} • \( {e.locatie} \){opm}\n`;
   });
 
   alert(message);
@@ -286,11 +290,11 @@ function renderWeek() {
       indicatorHtml = `<span class="vader-indicator ${className}">●</span>`;
     }
     
-    tr.innerHTML = `<td onclick="showDayDetails('${ds}')">${dayShort} ${d.getDate()} ${monthShort}${indicatorHtml}</td>`;
+    tr.innerHTML = `<td onclick="showDayDetails('\( {ds}')"> \){dayShort} ${d.getDate()} \( {monthShort} \){indicatorHtml}</td>`;
     
     ['T1','T2','T3'].forEach(k => {
       const s = getSlotStatus(ds, k);
-      tr.innerHTML += `<td><div class="slot ${s.class}">${s.text}</div></td>`;
+      tr.innerHTML += `<td><div class="slot \( {s.class}"> \){s.text}</div></td>`;
     });
     tbody.appendChild(tr);
   }
@@ -309,7 +313,7 @@ function renderEntries() {
         <div class="datum-tijd">${e.datum} • ${timeLabel(e.tijd)}</div>
       </div>
       <div class="locatie">${e.locatie}</div>
-      ${e.opmerking ? `<div class="opmerking">${e.opmerking}</div>` : ''}
+      \( {e.opmerking ? `<div class="opmerking"> \){e.opmerking}</div>` : ''}
       ${e.vadermee === 'Ja' ? '<span class="vader-mee">Vader mee</span>' : ''}
     `;
     container.appendChild(card);
