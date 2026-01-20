@@ -16,286 +16,59 @@
       --full: #ff3b30;
       --border: #c7c7cc;
     }
-
     * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      line-height: 1.4;
-      font-size: 17px;
-    }
-
-    header {
-      background: white;
-      padding: 16px;
-      text-align: center;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    .weeknav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: white;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .weeknav button {
-      background: transparent;
-      border: none;
-      font-size: 1.4rem;
-      color: var(--primary);
-      padding: 8px 16px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .weeknav strong {
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    .content {
-      padding: 16px;
-      padding-bottom: 100px;
-    }
-
-    .week-table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0 8px;
-    }
-
-    .week-table th, .week-table td {
-      padding: 12px 8px;
-      text-align: center;
-      background: white;
-      border-radius: 10px;
-    }
-
-    .week-table th {
-      background: #f0f0f5;
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-      font-weight: 500;
-      white-space: nowrap;
-      line-height: 1.2;
-      padding: 10px 6px;
-    }
-
-    .slot {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 8px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      min-height: 36px;
-    }
-
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.4; font-size: 17px; }
+    header { background: white; padding: 16px; text-align: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+    h1 { font-size: 1.5rem; font-weight: 600; margin: 0; }
+    .weeknav { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: white; border-bottom: 1px solid var(--border); }
+    .weeknav button { background: transparent; border: none; font-size: 1.4rem; color: var(--primary); padding: 8px 16px; font-weight: 600; cursor: pointer; }
+    .weeknav strong { font-size: 1.1rem; font-weight: 600; }
+    .content { padding: 16px; padding-bottom: 100px; }
+    
+    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 0 16px; }
+    .week-table { width: 100%; min-width: 480px; border-collapse: separate; border-spacing: 0 8px; }
+    .week-table th, .week-table td { padding: 12px 8px; text-align: center; background: white; border-radius: 10px; min-width: 110px; }
+    .week-table th { background: #f0f0f5; font-size: 0.82rem; color: var(--text-secondary); font-weight: 500; white-space: nowrap; line-height: 1.2; padding: 10px 6px; position: sticky; top: 0; z-index: 5; }
+    .week-table td:first-child { position: sticky; left: 0; z-index: 4; background: white; min-width: 100px; font-weight: 500; }
+    .slot { display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; min-height: 36px; }
     .free  { background: rgba(52, 199, 89, 0.15); color: var(--free); }
     .booked{ background: rgba(255, 149, 0, 0.15); color: var(--booked); }
     .full  { background: rgba(255, 59, 48, 0.15); color: var(--full); }
+    .whole-day { background: rgba(255, 149, 0, 0.25); color: var(--booked); font-weight: 600; }
 
-    .vader-badge {
-      background: #0062cc;
-      color: white;
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 12px;
-      white-space: nowrap;
-    }
-
-    h2 {
-      font-size: 1.3rem;
-      margin: 24px 0 12px;
-      color: var(--text);
-    }
-
-    .entries-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .entry-card {
-      background: white;
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      border: 1px solid var(--border);
-    }
-
-    .entry-card .top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .entry-card .naam {
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-
-    .entry-card .datum-tijd {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-    }
-
-    .entry-card .locatie {
-      font-size: 0.95rem;
-      margin: 4px 0;
-    }
-
-    .entry-card .opmerking {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      margin-top: 6px;
-    }
-
-    .vader-mee {
-      background: #e8f0fe;
-      color: #0062cc;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      align-self: flex-start;
-      margin-top: 8px;
-      display: inline-block;
-    }
-
-    .fab {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--primary);
-      color: white;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      font-size: 2.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 12px rgba(0,122,255,0.3);
-      border: none;
-      cursor: pointer;
-      z-index: 100;
-      transition: transform 0.2s;
-    }
-
+    h2 { font-size: 1.3rem; margin: 24px 0 12px; color: var(--text); }
+    .entries-list { display: flex; flex-direction: column; gap: 12px; }
+    .entry-card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border); }
+    .entry-card .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .entry-card .naam { font-weight: 600; font-size: 1.1rem; }
+    .entry-card .datum-tijd { font-size: 0.9rem; color: var(--text-secondary); }
+    .entry-card .locatie { font-size: 0.95rem; margin: 4px 0; }
+    .entry-card .opmerking { font-size: 0.9rem; color: var(--text-secondary); margin-top: 6px; }
+    .vader-mee { background: #e8f0fe; color: #0062cc; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; align-self: flex-start; margin-top: 8px; display: inline-block; }
+    .fab { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; width: 60px; height: 60px; border-radius: 50%; font-size: 2.2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,122,255,0.3); border: none; cursor: pointer; z-index: 100; transition: transform 0.2s; }
     .fab:active { transform: translateX(-50%) scale(0.92); }
 
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      display: flex;
-      align-items: flex-end;
-      z-index: 200;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .modal.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .modal-content {
-      background: white;
-      width: 100%;
-      max-height: 90vh;
-      border-radius: 20px 20px 0 0;
-      padding: 24px 20px;
-      overflow-y: auto;
-      transform: translateY(100%);
-      transition: transform 0.3s ease;
-    }
-
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: flex-end; z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+    .modal.active { opacity: 1; visibility: visible; }
+    .modal-content { background: white; width: 100%; max-height: 90vh; border-radius: 20px 20px 0 0; padding: 24px 20px; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s ease; }
     .modal.active .modal-content { transform: translateY(0); }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 1.8rem;
-      color: var(--text-secondary);
-      cursor: pointer;
-    }
-
-    form label {
-      display: block;
-      margin: 16px 0 6px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      color: var(--text);
-    }
-
-    input, select {
-      width: 100%;
-      padding: 14px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 1rem;
-      background: #f9f9f9;
-    }
-
-    .checkbox-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 20px 0;
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 16px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-top: 20px;
-      cursor: pointer;
-    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .close-btn { background: none; border: none; font-size: 1.8rem; color: var(--text-secondary); cursor: pointer; }
+    form label { display: block; margin: 16px 0 6px; font-weight: 600; font-size: 0.95rem; color: var(--text); }
+    input, select { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; background: #f9f9f9; }
+    .checkbox-wrapper { display: flex; align-items: center; gap: 10px; margin: 20px 0; }
+    .submit-btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; margin-top: 20px; cursor: pointer; }
 
     @media (min-width: 500px) {
       .content { max-width: 480px; margin: 0 auto; }
       .fab { left: calc(50% + 220px); transform: none; }
+      .table-wrapper { margin: 0; padding: 0; overflow-x: visible; }
+      .week-table { min-width: auto; }
     }
   </style>
 </head>
 <body>
-
-<header>
-  <h1>Bezoekplanner</h1>
-</header>
+<header><h1>Bezoekplanner</h1></header>
 
 <div class="weeknav">
   <button id="prevWeek">◀</button>
@@ -305,17 +78,19 @@
 
 <div class="content">
   <h2>Deze week</h2>
-  <table class="week-table">
-    <thead>
-      <tr>
-        <th>Dag</th>
-        <th>10:00 – 12:00</th>
-        <th>15:00 – 17:30</th>
-        <th>18:30 – 20:00</th>
-      </tr>
-    </thead>
-    <tbody id="weekBody"></tbody>
-  </table>
+  <div class="table-wrapper">
+    <table class="week-table">
+      <thead>
+        <tr>
+          <th>Dag</th>
+          <th>10:00 – 12:00</th>
+          <th>15:00 – 17:30</th>
+          <th>18:30 – 20:00</th>
+        </tr>
+      </thead>
+      <tbody id="weekBody"></tbody>
+    </table>
+  </div>
 
   <h2>Inschrijvingen</h2>
   <div class="entries-list" id="entriesList"></div>
@@ -329,7 +104,6 @@
       <h2>Nieuwe afspraak</h2>
       <button class="close-btn" id="closeModal">×</button>
     </div>
-
     <form id="visitForm">
       <label>Locatie</label>
       <select id="locatie" required>
@@ -337,29 +111,24 @@
         <option>Moeder – Revalidatiecentrum</option>
         <option>Vader – Thuis</option>
       </select>
-
       <label>Naam</label>
       <input id="naam" required placeholder="Bijv. Henk">
-
       <label>Datum</label>
       <input type="date" id="datum" required>
-
       <label>Tijd</label>
       <select id="tijd" required>
         <option value="">Kies tijd</option>
         <option>10:00 – 12:00</option>
         <option>15:00 – 17:30</option>
         <option>18:30 – 20:00</option>
+        <option value="Geen specifieke tijd (hele dag)">Geen specifieke tijd (hele dag)</option>
       </select>
-
       <label>Opmerking</label>
-      <input id="opmerking" placeholder="Bijv. alleen even koffiedrinken">
-
+      <input id="opmerking" placeholder="Bijv. hele middag langs">
       <div class="checkbox-wrapper">
         <input type="checkbox" id="vadermee">
         <label for="vadermee" style="margin:0; font-weight:normal;">Vader komt mee</label>
       </div>
-
       <button type="submit" class="submit-btn">Opslaan</button>
     </form>
   </div>
@@ -367,13 +136,11 @@
 
 <script>
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbx_YzuFqcn8mZNeQLjlbp1vt8Ntd6S16RmawZSC4z_iql3pV2c-_dsXu1yBHNCKQmfa/exec";
-
 let entries = [];
 let currentWeekStart = getMondayOfWeek(new Date());
 
 function getMondayOfWeek(date) {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
+  const d = new Date(date); d.setHours(0,0,0,0);
   const day = d.getDay();
   const diff = day === 0 ? -6 : 1 - day;
   d.setDate(d.getDate() + diff);
@@ -387,8 +154,21 @@ function normalizeDate(input) {
   return dt.toISOString().split('T')[0];
 }
 
-const timeKey = t => t.includes('10') ? 'T1' : t.includes('15') ? 'T2' : t.includes('18') ? 'T3' : '';
-const timeLabel = k => k==='T1'?'10:00–12:00':k==='T2'?'15:00–17:30':k==='T3'?'18:30–20:00':'';
+function timeKey(t) {
+  if (t.includes('Geen specifieke tijd') || t === 'Geen specifieke tijd (hele dag)') return 'T0';
+  if (t.includes('10')) return 'T1';
+  if (t.includes('15')) return 'T2';
+  if (t.includes('18')) return 'T3';
+  return '';
+}
+
+function timeLabel(k) {
+  if (k === 'T0') return 'Hele dag';
+  if (k === 'T1') return '10:00–12:00';
+  if (k === 'T2') return '15:00–17:30';
+  if (k === 'T3') return '18:30–20:00';
+  return '';
+}
 
 function isRecentEnough(d) {
   const g = new Date(d);
@@ -414,54 +194,38 @@ async function loadEntries() {
 }
 
 function getSlotStatus(datum, tKey) {
-  const matches = entries.filter(e => e.datum === datum && e.tijd === tKey);
-  
+  const dayEntries = entries.filter(e => e.datum === datum);
+  const hasWholeDay = dayEntries.some(e => e.tijd === 'T0');
+  const matches = dayEntries.filter(e => e.tijd === tKey);
+
+  if (hasWholeDay) {
+    return { text: 'Hele dag bezet', class: 'whole-day' };
+  }
+
   if (matches.length === 0) {
-    return { text: 'Vrij', class: 'free', vaderBadge: false };
+    return { text: 'Vrij', class: 'free' };
   }
-  
   if (matches.length >= 2) {
-    return { text: 'Vol', class: 'full', vaderBadge: false };
+    return { text: 'Vol', class: 'full' };
   }
-  
-  const heeftVaderMee = matches.some(e => e.vadermee === 'Ja');
-  return {
-    text: 'Bezet',
-    class: 'booked',
-    vaderBadge: heeftVaderMee
-  };
+  return { text: 'Bezet', class: 'booked' };
 }
 
 function renderWeek() {
   const tbody = document.getElementById('weekBody');
   tbody.innerHTML = '';
-
   for (let i = 0; i < 7; i++) {
     const d = new Date(currentWeekStart);
     d.setDate(d.getDate() + i);
     const ds = normalizeDate(d);
-
     const tr = document.createElement('tr');
     const dayShort = d.toLocaleDateString('nl-NL', {weekday: 'short'}).replace('.', '');
     tr.innerHTML = `<td>${dayShort} ${d.getDate()} ${d.toLocaleDateString('nl-NL', {month: 'short'})}</td>`;
-
+    
     ['T1','T2','T3'].forEach(k => {
       const s = getSlotStatus(ds, k);
-      
-      let badgeHtml = '';
-      if (s.vaderBadge) {
-        badgeHtml = '<span class="vader-badge">Vader mee</span>';
-      }
-      
-      tr.innerHTML += `
-        <td>
-          <div class="slot ${s.class}">
-            ${s.text}
-            ${badgeHtml}
-          </div>
-        </td>`;
+      tr.innerHTML += `<td><div class="slot ${s.class}">${s.text}</div></td>`;
     });
-
     tbody.appendChild(tr);
   }
 }
@@ -469,9 +233,7 @@ function renderWeek() {
 function renderEntries() {
   const container = document.getElementById('entriesList');
   container.innerHTML = '';
-
   entries.sort((a,b) => new Date(a.datum) - new Date(b.datum) || a.tijd.localeCompare(b.tijd));
-
   entries.forEach(e => {
     const card = document.createElement('div');
     card.className = 'entry-card';
@@ -493,20 +255,13 @@ function renderAll() {
   end.setDate(end.getDate() + 6);
   const fmt = d => d.toLocaleDateString('nl-NL', {day:'numeric', month:'long'});
   document.getElementById('weekLabel').textContent = `${fmt(currentWeekStart)} – ${fmt(end)}`;
-
   renderWeek();
   renderEntries();
 }
 
 // Events
-document.getElementById('prevWeek').onclick = () => {
-  currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-  renderAll();
-};
-document.getElementById('nextWeek').onclick = () => {
-  currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-  renderAll();
-};
+document.getElementById('prevWeek').onclick = () => { currentWeekStart.setDate(currentWeekStart.getDate() - 7); renderAll(); };
+document.getElementById('nextWeek').onclick = () => { currentWeekStart.setDate(currentWeekStart.getDate() + 7); renderAll(); };
 
 const modal = document.getElementById('modal');
 const fab = document.getElementById('fab');
@@ -519,15 +274,19 @@ modal.onclick = e => { if (e.target === modal) modal.classList.remove('active');
 
 form.onsubmit = async e => {
   e.preventDefault();
-
   const datum = normalizeDate(form.datum.value);
   if (!isRecentEnough(datum)) return alert("Maximaal 7 dagen terug boeken.");
-
   const key = timeKey(form.tijd.value);
   const locatie = form.locatie.value;
 
-  if (entries.some(en => en.datum === datum && en.tijd === key && en.locatie === locatie)) {
-    return alert("Dit tijdslot is al bezet op deze locatie.");
+  // Extra check voor hele dag conflict
+  const dayEntries = entries.filter(en => en.datum === datum && en.locatie === locatie);
+  const hasWholeDay = dayEntries.some(en => en.tijd === 'T0');
+  const isWholeDay = key === 'T0';
+
+  if (hasWholeDay || (isWholeDay && dayEntries.length > 0) || 
+      dayEntries.some(en => en.tijd === key && key !== 'T0')) {
+    return alert("Dit tijdslot of de hele dag is al bezet op deze locatie.");
   }
 
   const entry = {
@@ -540,14 +299,13 @@ form.onsubmit = async e => {
   };
 
   entries.push(entry);
-
   try {
     await fetch(SHEET_URL, {
       method: 'POST',
       mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(entry)
     });
-
     renderAll();
     form.reset();
     modal.classList.remove('active');
