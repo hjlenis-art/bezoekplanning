@@ -15,9 +15,9 @@
       --booked: #ff9500;
       --full: #ff3b30;
       --border: #c7c7cc;
-      --moeder: #007aff;   /* blauw voor moeder */
-      --vader: #ff9500;    /* oranje voor vader */
-      --both: #af52de;     /* paars voor beide */
+      --moeder: #007aff;
+      --vader: #ff9500;
+      --both: #af52de;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -105,7 +105,6 @@
 </div>
 
 <div class="content">
-  <h2>Deze week</h2>
   
   <div class="legend">
     <strong>Legenda stipjes:</strong><br>
@@ -171,6 +170,7 @@
 </div>
 
 <script>
+// === De rest van de script blijft precies hetzelfde ===
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbx_YzuFqcn8mZNeQLjlbp1vt8Ntd6S16RmawZSC4z_iql3pV2c-_dsXu1yBHNCKQmfa/exec";
 let entries = [];
 let currentWeekStart = getMondayOfWeek(new Date());
