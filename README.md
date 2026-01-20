@@ -91,7 +91,7 @@
 
 <script>
 // === CONFIG: URL van je Google WebApp ===
-const SHEET_URL = "[PLAATS_HIER_JE_WEBAPP_URL](https://script.google.com/macros/s/AKfycbx_YzuFqcn8mZNeQLjlbp1vt8Ntd6S16RmawZSC4z_iql3pV2c-_dsXu1yBHNCKQmfa/exec)";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbx_YzuFqcn8mZNeQLjlbp1vt8Ntd6S16RmawZSC4z_iql3pV2c-_dsXu1yBHNCKQmfa/exec";
 
 // Data ophalen uit Google Sheet
 let entries = [];
