@@ -5,33 +5,33 @@
 <title>Bezoekplanning Revalidatie</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body { font-family: Arial, sans-serif; background:#f4f6f8; padding:20px; }
-.container { max-width:800px; margin:auto; background:#fff; padding:25px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+body { font-family: Arial, sans-serif; background:#f4f6f8; padding:10px; }
+.container { max-width:800px; margin:auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+
 h1,h2 { text-align:center; margin-top:10px; }
-table { width:100%; border-collapse:collapse; margin-top:10px; text-align:center; font-size:15px; }
-th,td { border:1px solid #aaa; padding:8px; }
-button { padding:12px 16px; background:#0078d4; color:#fff; border:none; border-radius:5px; font-size:16px; cursor:pointer; }
+table { width:100%; border-collapse:collapse; margin-top:10px; text-align:center; font-size:14px; }
+th,td { border:1px solid #aaa; padding:6px; }
+
+button { padding:10px 14px; background:#0078d4; color:#fff; border:none; border-radius:5px; font-size:16px; cursor:pointer; }
 button:hover { background:#005fa3; }
-label { display:block; margin-top:15px; font-weight:bold; }
-input,select { width:100%; padding:10px; margin-top:5px; font-size:16px; }
-.info { background:#eef4ff; padding:15px; border-radius:5px; margin-bottom:20px; }
-.weeknav { text-align:center; margin-bottom:10px; }
+
+input,select { width:100%; padding:8px; margin-top:5px; font-size:14px; }
+label { display:block; margin-top:10px; font-weight:bold; }
+
 .hidden { display:none; }
+.weeknav { text-align:center; margin-bottom:10px; }
+
 @media (max-width:600px){
-  table { font-size:13px; display:block; overflow-x:auto; white-space:nowrap; }
+  table { display:block; overflow-x:auto; white-space:nowrap; font-size:13px; }
+  th,td { padding:5px; }
+  button { font-size:14px; padding:8px 10px; }
+  input, select { font-size:13px; padding:6px; }
 }
 </style>
 </head>
 <body>
 <div class="container">
 <h1>Bezoekplanning</h1>
-
-<div class="info">
-<strong>Regels:</strong><br>
-• Geen dubbele boeking op hetzelfde tijdstip<br>
-• Meerdere boekingen per persoon toegestaan<br>
-• Boeken tot maximaal <strong>7 dagen terug</strong>
-</div>
 
 <!-- Weekoverzicht -->
 <h2>Weekoverzicht</h2>
@@ -65,7 +65,7 @@ input,select { width:100%; padding:10px; margin-top:5px; font-size:16px; }
 </table>
 
 <!-- Nieuwe inschrijving -->
-<div style="text-align:center; margin-top:25px;">
+<div style="text-align:center; margin-top:15px;">
 <button id="showForm">Nieuwe inschrijving</button>
 </div>
 
@@ -97,7 +97,7 @@ input,select { width:100%; padding:10px; margin-top:5px; font-size:16px; }
 
 <label><input type="checkbox" id="vadermee"> Vader mee</label>
 
-<button type="submit" style="margin-top:20px;">Inschrijven</button>
+<button type="submit" style="margin-top:15px;">Inschrijven</button>
 </form>
 </div>
 
@@ -105,17 +105,50 @@ input,select { width:100%; padding:10px; margin-top:5px; font-size:16px; }
 const SHEET_URL="https://script.google.com/macros/s/AKfycbx_YzuFqcn8mZNeQLjlbp1vt8Ntd6S16RmawZSC4z_iql3pV2c-_dsXu1yBHNCKQmfa/exec";
 let entries=[],currentWeekStart=new Date();currentWeekStart.setDate(currentWeekStart.getDate()-currentWeekStart.getDay()+1);
 
-/* Datum + tijd helpers */
-function normalizeDate(d){ const dt=new Date(d); return dt.toISOString().split("T")[0]; }
-const timeKey=t=>t.includes("10:00")?"T1":t.includes("15:00")?"T2":"T3";
-const timeLabel=k=>k==="T1"?"10:00 – 12:00":k==="T2"?"15:00 – 17:30":"18:30 – 20:00";
-function isDatumToegestaan(d){ const g=new Date(d),v=new Date();v.setHours(0,0,0,0); const grens=new Date(v);grens.setDate(grens.getDate()-7); return g>=grens; }
+/* Helpers */
+function normalizeDate(d){
+  if(!d) return "";
+  const parts=d.split("-"); // "YYYY-MM-DD"
+  const dt=new Date(parts[0], parts[1]-1, parts[2]);
+  const yyyy = dt.getFullYear();
+  const mm = String(dt.getMonth()+1).padStart(2,"0");
+  const dd = String(dt.getDate()).padStart(2,"0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+const timeKey = t => {
+  if(t.includes("10:00")) return "T1";
+  if(t.includes("15:00")) return "T2";
+  if(t.includes("18:30")) return "T3";
+  return "";
+};
+
+const timeLabel = k => 
+  k === "T1" ? "10:00 – 12:00" :
+  k === "T2" ? "15:00 – 17:30" :
+  k === "T3" ? "18:30 – 20:00" : "";
+
+function isDatumToegestaan(d){
+  const g=new Date(d),v=new Date(); v.setHours(0,0,0,0);
+  const grens=new Date(v); grens.setDate(grens.getDate()-7);
+  return g>=grens;
+}
 
 /* Laden */
 async function loadEntries(){
-  const r=await fetch(SHEET_URL); const d=await r.json();
-  entries=d.slice(1).map(r=>({datum:normalizeDate(r[0]),tijd:timeKey(r[1]),naam:r[2],locatie:r[3],opmerking:r[4],vadermee:r[5]}));
-  updateTables();
+  try{
+    const r=await fetch(SHEET_URL);
+    const d=await r.json();
+    entries=d.slice(1).map(r=>({
+      datum:normalizeDate(r[0]),
+      tijd:timeKey(r[1]),
+      naam:r[2],
+      locatie:r[3],
+      opmerking:r[4],
+      vadermee:r[5]
+    }));
+    updateTables();
+  }catch(e){ console.error(e); }
 }
 
 /* UI */
@@ -126,7 +159,7 @@ function updateTables(){
 
   for(let i=0;i<7;i++){
     const d=new Date(currentWeekStart); d.setDate(d.getDate()+i);
-    const ds=d.toISOString().split("T")[0];
+    const ds=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
     tbody.innerHTML+=`<tr>
       <td>${ds}</td>${slot(ds,"T1")}${slot(ds,"T2")}${slot(ds,"T3")}
     </tr>`;
@@ -156,14 +189,29 @@ showForm.onclick=()=>visitForm.classList.toggle("hidden");
 /* Opslaan */
 visitForm.onsubmit=async e=>{
   e.preventDefault();
-  if(!isDatumToegestaan(datum.value)) return alert("Maximaal 7 dagen terug boeken.");
+  const normalizedDatum=normalizeDate(datum.value);
   const key=timeKey(tijd.value);
-  if(entries.some(e=>e.datum===normalizeDate(datum.value) && e.tijd===key)) return alert("Dit tijdstip is al bezet.");
+  if(!isDatumToegestaan(normalizedDatum)) return alert("Maximaal 7 dagen terug boeken.");
+  if(entries.some(e=>e.datum===normalizedDatum && e.tijd===key)) return alert("Dit tijdstip is al bezet.");
 
-  const n={datum:normalizeDate(datum.value),tijd:key,naam:naam.value,locatie:locatie.value,opmerking:opmerking.value,vadermee:vadermee.checked?"Ja":"Nee"};
+  const n={
+    datum:normalizedDatum,
+    tijd:key,
+    naam:naam.value,
+    locatie:locatie.value,
+    opmerking:opmerking.value,
+    vadermee:vadermee.checked?"Ja":"Nee"
+  };
   entries.push(n);
-  await fetch(SHEET_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(n)});
-  updateTables(); visitForm.reset(); visitForm.classList.add("hidden");
+  await fetch(SHEET_URL,{
+    method:"POST",
+    mode:"no-cors",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(n)
+  });
+  updateTables();
+  visitForm.reset();
+  visitForm.classList.add("hidden");
 };
 
 loadEntries();
