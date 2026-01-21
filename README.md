@@ -38,7 +38,6 @@
       position: sticky;
       top: 0;
       z-index: 10;
-      /* Leeg gelaten conform verzoek (titel verwijderd) */
       min-height: 20px;
     }
 
@@ -284,7 +283,6 @@
       cursor: pointer;
     }
 
-    /* Klikbare datum-knop */
     .day-button {
       background: none;
       border: none;
@@ -331,7 +329,6 @@
 
   <button class="fab" id="fab" aria-label="Nieuwe afspraak toevoegen">+</button>
 
-  <!-- Modal voor nieuwe afspraak -->
   <div class="modal" id="modal" aria-hidden="true">
     <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="newVisitTitle">
       <div class="modal-header">
@@ -374,7 +371,6 @@
     </div>
   </div>
 
-  <!-- Modal voor dag-inschrijvingen -->
   <div class="modal" id="dayModal" aria-hidden="true">
     <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="dayModalTitle">
       <div class="modal-header">
@@ -390,6 +386,7 @@
 
     let entries = [];
     let currentWeekStart = getMondayOfWeek(new Date());
+    let slotStatusCache = new Map();
 
     function getMondayOfWeek(date) {
       const d = new Date(date);
@@ -400,21 +397,76 @@
       return d;
     }
 
+    // Verbeterde datumverwerking - voorkomt timezone issues
     function normalizeDate(input) {
       if (!input) return "";
-      const dt = new Date(input);
+      
+      // Als het al in YYYY-MM-DD formaat is
+      if (typeof input === 'string' && input.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return input;
+      }
+      
+      // Parse datum zonder timezone issues
+      let dt;
+      if (typeof input === 'string') {
+        // Voor strings zoals "1/17/2024" of andere formaten
+        const parts = input.split('/');
+        if (parts.length === 3) {
+          // Assumeer MM/DD/YYYY formaat
+          dt = new Date(parts[2], parts[0] - 1, parts[1]);
+        } else {
+          dt = new Date(input);
+        }
+      } else {
+        dt = new Date(input);
+      }
+      
       if (isNaN(dt.getTime())) return "";
-      return dt.toISOString().split('T')[0];
+      
+      // Gebruik lokale datum zonder timezone conversie
+      const year = dt.getFullYear();
+      const month = String(dt.getMonth() + 1).padStart(2, '0');
+      const day = String(dt.getDate()).padStart(2, '0');
+      
+      return `${year}-${month}-${day}`;
     }
 
-    const timeKey   = t => t.includes('10') ? 'T1' : t.includes('15') ? 'T2' : t.includes('18') ? 'T3' : '';
+    // Verbeterde datum parsing voor display
+    function parseDisplayDate(dateString) {
+      const [year, month, day] = dateString.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    function formatDateForDisplay(dateString) {
+      const date = parseDisplayDate(dateString);
+      return date.toLocaleDateString('nl-NL', { 
+        weekday: 'short', 
+        day: 'numeric', 
+        month: 'short' 
+      }).replace('.', '');
+    }
+
+    function formatDateLong(dateString) {
+      const date = parseDisplayDate(dateString);
+      const formatted = date.toLocaleDateString('nl-NL', { 
+        weekday: 'long', 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      });
+      return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    }
+
+    const timeKey = t => t.includes('10') ? 'T1' : t.includes('15') ? 'T2' : t.includes('18') ? 'T3' : '';
     const timeLabel = k => k==='T1'?'10:00–12:00':k==='T2'?'15:00–17:30':k==='T3'?'18:30–20:00':'';
 
-    function isRecentEnough(d) {
-      const g = new Date(d);
-      const v = new Date(); v.setHours(0,0,0,0);
-      const min = new Date(v); min.setDate(min.getDate() - 7);
-      return g >= min;
+    function isRecentEnough(dateString) {
+      const targetDate = parseDisplayDate(dateString);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const minDate = new Date(today);
+      minDate.setDate(minDate.getDate() - 7);
+      return targetDate >= minDate;
     }
 
     async function loadEntries() {
@@ -428,26 +480,43 @@
           locatie: r[3],
           opmerking: r[4] || '',
           vadermee: r[5] || 'Nee'
-        }));
+        })).filter(e => e.datum); // Filter out entries with invalid dates
+        
+        // Clear cache when new data loads
+        slotStatusCache.clear();
         renderAll();
-      } catch(e) { console.error("Fout bij laden:", e); }
+      } catch(e) { 
+        console.error("Fout bij laden:", e); 
+      }
     }
 
     function getSlotStatus(datum, tKey) {
+      const cacheKey = `${datum}-${tKey}`;
+      if (slotStatusCache.has(cacheKey)) {
+        return slotStatusCache.get(cacheKey);
+      }
+
       const matches = entries.filter(e => e.datum === datum && e.tijd === tKey);
+      let result;
+      
       if (matches.length === 0) {
-        return { text: 'Vrij', class: 'free', vaderBadge: false };
+        result = { text: 'Vrij', class: 'free', vaderBadge: false };
+      } else if (matches.length >= 2) {
+        result = { text: 'Vol', class: 'full', vaderBadge: false };
+      } else {
+        const heeftVaderMee = matches.some(e => e.vadermee === 'Ja');
+        result = { text: 'Bezet', class: 'booked', vaderBadge: heeftVaderMee };
       }
-      if (matches.length >= 2) {
-        return { text: 'Vol', class: 'full', vaderBadge: false };
-      }
-      const heeftVaderMee = matches.some(e => e.vadermee === 'Ja');
-      return { text: 'Bezet', class: 'booked', vaderBadge: heeftVaderMee };
+
+      slotStatusCache.set(cacheKey, result);
+      return result;
     }
 
     function renderWeek() {
       const tbody = document.getElementById('weekBody');
       tbody.innerHTML = '';
+
+      const fragment = document.createDocumentFragment();
 
       for (let i = 0; i < 7; i++) {
         const d = new Date(currentWeekStart);
@@ -455,54 +524,72 @@
         const ds = normalizeDate(d);
 
         const tr = document.createElement('tr');
+        
+        // Format dag kolom
         const dayShort = d.toLocaleDateString('nl-NL', {weekday: 'short'}).replace('.', '');
+        const dayNum = d.getDate();
+        const monthShort = d.toLocaleDateString('nl-NL', {month: 'short'});
+        
         tr.innerHTML = `
           <td class="day-cell" data-date="${ds}">
             <button class="day-button" aria-label="Toon inschrijvingen voor ${ds}">
-              ${dayShort} ${d.getDate()} ${d.toLocaleDateString('nl-NL', {month: 'short'})}
+              ${dayShort} ${dayNum} ${monthShort}
             </button>
           </td>`;
 
         ['T1','T2','T3'].forEach(k => {
           const s = getSlotStatus(ds, k);
           let badgeHtml = s.vaderBadge ? '<span class="vader-badge">Vader mee</span>' : '';
-          tr.innerHTML += `
-            <td>
-              <div class="slot ${s.class}">
-                ${s.text}
-                ${badgeHtml}
-              </div>
-            </td>`;
+          const td = document.createElement('td');
+          td.innerHTML = `
+            <div class="slot ${s.class}">
+              ${s.text}
+              ${badgeHtml}
+            </div>`;
+          tr.appendChild(td);
         });
 
-        tbody.appendChild(tr);
+        fragment.appendChild(tr);
       }
+
+      tbody.appendChild(fragment);
+      activateDayClicks();
     }
 
     function renderEntries() {
       const container = document.getElementById('entriesList');
       container.innerHTML = '';
 
-      // Sorteer op datum en vervolgens tijdvolgorde T1, T2, T3
+      // Sorteer op datum en vervolgens tijdvolgorde
       const order = { T1: 1, T2: 2, T3: 3 };
-      entries.sort((a,b) =>
-        new Date(a.datum) - new Date(b.datum) || (order[a.tijd] - order[b.tijd])
-      );
+      const sortedEntries = [...entries].sort((a,b) => {
+        const dateA = parseDisplayDate(a.datum);
+        const dateB = parseDisplayDate(b.datum);
+        return dateA - dateB || (order[a.tijd] - order[b.tijd]);
+      });
 
-      entries.forEach(e => {
+      const fragment = document.createDocumentFragment();
+
+      sortedEntries.forEach(e => {
         const card = document.createElement('div');
         card.className = 'entry-card';
+        
+        // Format datum voor display
+        const formattedDate = formatDateForDisplay(e.datum);
+        
         card.innerHTML = `
           <div class="top">
             <div class="naam">${e.naam}</div>
-            <div class="datum-tijd">${e.datum} • ${timeLabel(e.tijd)}</div>
+            <div class="datum-tijd">${formattedDate} • ${timeLabel(e.tijd)}</div>
           </div>
           <div class="locatie">${e.locatie}</div>
           ${e.opmerking ? `<div class="opmerking">${e.opmerking}</div>` : ''}
           ${e.vadermee === 'Ja' ? '<span class="vader-mee">Vader mee</span>' : ''}
         `;
-        container.appendChild(card);
+        fragment.appendChild(card);
       });
+
+      container.appendChild(fragment);
     }
 
     function activateDayClicks() {
@@ -525,11 +612,8 @@
         .filter(e => e.datum === datum)
         .sort((a,b) => order[a.tijd] - order[b.tijd]);
 
-      const d = new Date(datum + "T00:00:00");
-      const pretty =
-        d.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-
-      title.textContent = `Inschrijvingen voor ${pretty.charAt(0).toUpperCase() + pretty.slice(1)}`;
+      const pretty = formatDateLong(datum);
+      title.textContent = `Inschrijvingen voor ${pretty}`;
 
       if (list.length === 0) {
         content.innerHTML = `<p style="color: var(--text-secondary);">Geen inschrijvingen.</p>`;
@@ -552,13 +636,15 @@
     }
 
     function renderAll() {
+      // Clear cache when re-rendering
+      slotStatusCache.clear();
+      
       const end = new Date(currentWeekStart);
       end.setDate(end.getDate() + 6);
       const fmt = d => d.toLocaleDateString('nl-NL', {day:'numeric', month:'long'});
       document.getElementById('weekLabel').textContent = `${fmt(currentWeekStart)} – ${fmt(end)}`;
 
       renderWeek();
-      activateDayClicks();   // <- activate after week render
       renderEntries();
     }
 
@@ -572,27 +658,51 @@
       renderAll();
     };
 
-    // Nieuwe afspraak modal
+    // Modal handling
     const modal = document.getElementById('modal');
     const fab = document.getElementById('fab');
     const closeModal = document.getElementById('closeModal');
     const form = document.getElementById('visitForm');
 
-    fab.onclick = () => { modal.classList.add('active'); modal.setAttribute('aria-hidden', 'false'); };
-    closeModal.onclick = () => { modal.classList.remove('active'); modal.setAttribute('aria-hidden', 'true'); };
-    modal.onclick = e => { if (e.target === modal) { modal.classList.remove('active'); modal.setAttribute('aria-hidden', 'true'); } };
+    fab.onclick = () => { 
+      modal.classList.add('active'); 
+      modal.setAttribute('aria-hidden', 'false'); 
+    };
+    
+    closeModal.onclick = () => { 
+      modal.classList.remove('active'); 
+      modal.setAttribute('aria-hidden', 'true'); 
+    };
+    
+    modal.onclick = e => { 
+      if (e.target === modal) { 
+        modal.classList.remove('active'); 
+        modal.setAttribute('aria-hidden', 'true'); 
+      } 
+    };
 
-    // Dag-inschrijvingen modal sluiten
+    // Day modal handling
     const dayModal = document.getElementById("dayModal");
     const closeDayModal = document.getElementById("closeDayModal");
-    closeDayModal.onclick = () => { dayModal.classList.remove('active'); dayModal.setAttribute('aria-hidden', 'true'); };
-    dayModal.onclick = e => { if (e.target === dayModal) { dayModal.classList.remove('active'); dayModal.setAttribute('aria-hidden', 'true'); } };
+    
+    closeDayModal.onclick = () => { 
+      dayModal.classList.remove('active'); 
+      dayModal.setAttribute('aria-hidden', 'true'); 
+    };
+    
+    dayModal.onclick = e => { 
+      if (e.target === dayModal) { 
+        dayModal.classList.remove('active'); 
+        dayModal.setAttribute('aria-hidden', 'true'); 
+      } 
+    };
 
     // Form submit
     form.onsubmit = async e => {
       e.preventDefault();
 
       const datum = normalizeDate(form.datum.value);
+      if (!datum) return alert("Ongeldige datum.");
       if (!isRecentEnough(datum)) return alert("Maximaal 7 dagen terug boeken.");
 
       const key = timeKey(form.tijd.value);
@@ -634,6 +744,7 @@
       }
     };
 
+    // Initialize
     loadEntries();
   </script>
 </body>
