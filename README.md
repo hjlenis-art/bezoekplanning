@@ -1,383 +1,849 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bezoekplanner</title>
   <style>
+    /* ===== VARIABLES & RESET ===== */
     :root {
       --primary: #007aff;
       --primary-dark: #0062cc;
-      --bg: #f2f2f7;
+      --secondary: #5856d6;
+      --bg: #f8f9fa;
       --card: #ffffff;
       --text: #1c1c1e;
       --text-secondary: #8e8e93;
       --free: #34c759;
       --booked: #ff9500;
       --full: #ff3b30;
-      --border: #c7c7cc;
+      --border: #e5e5ea;
+      --success: #34c759;
+      --warning: #ff9500;
+      --error: #ff3b30;
+      --shadow: 0 2px 10px rgba(0,0,0,0.08);
+      --radius: 12px;
+      --transition: all 0.3s ease;
     }
 
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
-      line-height: 1.4;
-      font-size: 17px;
+      line-height: 1.5;
+      overflow-x: hidden;
     }
 
-    header {
+    /* ===== LAYOUT CONTAINER ===== */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      max-width: 100vw;
+      overflow: hidden;
+    }
+
+    /* ===== HEADER & NAVIGATION ===== */
+    .app-header {
       background: white;
-      padding: 16px;
-      text-align: center;
       border-bottom: 1px solid var(--border);
+      padding: 0;
       position: sticky;
       top: 0;
-      z-index: 10;
-      min-height: 20px;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
-    .weeknav {
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
-      background: white;
-      border-bottom: 1px solid var(--border);
+      height: 60px;
     }
 
-    .weeknav button {
-      background: transparent;
-      border: none;
+    .logo {
       font-size: 1.4rem;
+      font-weight: 700;
       color: var(--primary);
-      padding: 8px 16px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .weeknav strong {
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    .content {
-      padding: 16px;
-      padding-bottom: 100px;
-    }
-
-    .week-table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0 8px;
-    }
-
-    .week-table th, .week-table td {
-      padding: 12px 8px;
-      text-align: center;
-      background: white;
-      border-radius: 10px;
-    }
-
-    .week-table th {
-      background: #f0f0f5;
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-      font-weight: 500;
-      white-space: nowrap;
-      line-height: 1.2;
-      padding: 10px 6px;
-    }
-
-    .slot {
+      text-decoration: none;
       display: flex;
       align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 8px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      min-height: 36px;
+      gap: 8px;
     }
 
-    .free  { background: rgba(52, 199, 89, 0.15); color: var(--free); }
-    .booked{ background: rgba(255, 149, 0, 0.15); color: var(--booked); }
-    .full  { background: rgba(255, 59, 48, 0.15); color: var(--full); }
+    .logo-icon {
+      font-size: 1.6rem;
+    }
 
-    .vader-badge {
-      background: #0062cc;
-      color: white;
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 12px;
+    .nav-tabs {
+      display: flex;
+      gap: 2px;
+      background: #f1f1f6;
+      border-radius: 10px;
+      padding: 4px;
+    }
+
+    .tab-button {
+      padding: 8px 20px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.95rem;
       white-space: nowrap;
     }
 
-    h2 {
-      font-size: 1.3rem;
-      margin: 24px 0 12px;
+    .tab-button.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: var(--shadow);
+    }
+
+    /* ===== MAIN CONTENT AREA ===== */
+    .main-content {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* ===== VIEWS ===== */
+    .view {
+      display: none;
+      animation: fadeIn 0.3s ease;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== HOME VIEW - WEEK PLANNING ===== */
+    .week-header {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .week-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .week-nav h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
       color: var(--text);
     }
 
-    .entries-list {
+    .week-controls {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .entry-card {
-      background: white;
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      border: 1px solid var(--border);
-    }
-
-    .entry-card .top {
-      display: flex;
-      justify-content: space-between;
+      gap: 10px;
       align-items: center;
-      margin-bottom: 8px;
     }
 
-    .entry-card .naam {
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-
-    .entry-card .datum-tijd {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-    }
-
-    .entry-card .locatie {
-      font-size: 0.95rem;
-      margin: 4px 0;
-    }
-
-    .entry-card .opmerking {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      margin-top: 6px;
-    }
-
-    .vader-mee {
-      background: #e8f0fe;
-      color: #0062cc;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      align-self: flex-start;
-      margin-top: 8px;
-      display: inline-block;
-    }
-
-    .fab {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--primary);
-      color: white;
-      width: 60px;
-      height: 60px;
+    .nav-btn {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      font-size: 2.2rem;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--primary);
+      font-size: 1.2rem;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(0,122,255,0.3);
-      border: none;
-      cursor: pointer;
-      z-index: 100;
-      transition: transform 0.2s;
+      transition: var(--transition);
     }
 
-    .fab:active { transform: translateX(-50%) scale(0.92); }
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      display: flex;
-      align-items: flex-end;
-      z-index: 200;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
+    .nav-btn:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
     }
 
-    .modal.active {
-      opacity: 1;
-      visibility: visible;
+    .current-week {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      text-align: center;
+      min-width: 200px;
     }
 
-    .modal-content {
+    /* ===== WEEK CALENDAR GRID ===== */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .calendar-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .calendar-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .day-card {
       background: white;
-      width: 100%;
-      max-height: 90vh;
-      border-radius: 20px 20px 0 0;
-      padding: 24px 20px;
-      overflow-y: auto;
-      transform: translateY(100%);
-      transition: transform 0.3s ease;
+      border-radius: var(--radius);
+      padding: 15px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      border: 1px solid transparent;
     }
 
-    .modal.active .modal-content { transform: translateY(0); }
+    .day-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
 
-    .modal-header {
+    .day-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .day-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .day-date {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--text);
+    }
+
+    .time-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .time-slot {
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .time-slot:hover:not(.full) {
+      transform: scale(1.02);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .time-slot.free {
+      background: rgba(52, 199, 89, 0.1);
+      color: var(--free);
+      border-color: rgba(52, 199, 89, 0.3);
+    }
+
+    .time-slot.booked {
+      background: rgba(255, 149, 0, 0.1);
+      color: var(--booked);
+      border-color: rgba(255, 149, 0, 0.3);
+    }
+
+    .time-slot.full {
+      background: rgba(255, 59, 48, 0.1);
+      color: var(--full);
+      border-color: rgba(255, 59, 48, 0.3);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .slot-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .badge.vader {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* ===== REGISTRATIONS VIEW ===== */
+    .registrations-header {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .registrations-header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-select {
+      padding: 8px 15px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+      font-size: 0.9rem;
+      min-width: 150px;
+    }
+
+    .registrations-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .registration-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .registration-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .card-header h3 {
+      font-size: 1.2rem;
+      color: var(--text);
+    }
+
+    .card-date {
+      background: var(--primary);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .card-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin: 15px 0;
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+
+    .detail-item i {
+      color: var(--primary);
+      font-style: normal;
+      font-weight: 600;
+      min-width: 100px;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .tag.vader {
+      background: rgba(0, 122, 255, 0.1);
+      color: var(--primary);
+    }
+
+    .tag.opmerking {
+      background: rgba(142, 142, 147, 0.1);
+      color: var(--text-secondary);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-secondary);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      opacity: 0.5;
+      font-style: normal;
+    }
+
+    /* ===== MODAL (HERBOUWD) ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal {
+      background: white;
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: var(--transition);
+    }
+
+    .modal-close:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .form-group {
       margin-bottom: 20px;
     }
 
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 1.8rem;
-      color: var(--text-secondary);
-      cursor: pointer;
-    }
-
-    form label {
+    .form-label {
       display: block;
-      margin: 16px 0 6px;
+      margin-bottom: 8px;
       font-weight: 600;
-      font-size: 0.95rem;
       color: var(--text);
+      font-size: 0.95rem;
     }
 
-    input, select {
+    .form-input, .form-select {
       width: 100%;
-      padding: 14px;
+      padding: 12px 15px;
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 8px;
       font-size: 1rem;
-      background: #f9f9f9;
+      transition: var(--transition);
+      background: white;
     }
 
-    .checkbox-wrapper {
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    }
+
+    .form-checkbox {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin: 20px 0;
     }
 
-    .submit-btn {
-      width: 100%;
-      padding: 16px;
+    .form-checkbox input {
+      width: 18px;
+      height: 18px;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.95rem;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #e9ecef;
+    }
+
+    /* ===== FLOATING ACTION BUTTON ===== */
+    .fab {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
       background: var(--primary);
       color: white;
       border: none;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-top: 20px;
+      font-size: 1.8rem;
       cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
+      z-index: 100;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .day-button {
-      background: none;
-      border: none;
-      color: var(--primary);
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 4px 8px;
+    .fab:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 25px rgba(0, 122, 255, 0.4);
     }
 
-    @media (min-width: 500px) {
-      .content { max-width: 480px; margin: 0 auto; }
-      .fab { left: calc(50% + 220px); transform: none; }
+    /* ===== RESPONSIVE ADJUSTMENTS ===== */
+    @media (max-width: 768px) {
+      .header-content {
+        padding: 0 15px;
+        flex-direction: column;
+        height: auto;
+        padding: 15px;
+      }
+      
+      .logo {
+        margin-bottom: 15px;
+      }
+      
+      .nav-tabs {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .main-content {
+        padding: 15px;
+      }
+      
+      .week-nav {
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+      }
+      
+      .current-week {
+        order: -1;
+        width: 100%;
+        text-align: center;
+      }
+      
+      .fab {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+      }
     }
+
+    @media (max-width: 480px) {
+      .modal {
+        width: 95%;
+        margin: 0 auto;
+      }
+      
+      .card-details {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .detail-item i {
+        min-width: 80px;
+      }
+      
+      .filters {
+        flex-direction: column;
+      }
+      
+      .filter-select {
+        width: 100%;
+      }
+    }
+
+    /* ===== UTILITY CLASSES ===== */
+    .text-center { text-align: center; }
+    .text-muted { color: var(--text-secondary); }
+    .mb-20 { margin-bottom: 20px; }
+    .mt-20 { margin-top: 20px; }
+    .d-none { display: none !important; }
+    .d-flex { display: flex; }
+    .align-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .flex-wrap { flex-wrap: wrap; }
+    .gap-10 { gap: 10px; }
   </style>
 </head>
 <body>
-
-  <header></header>
-
-  <div class="weeknav">
-    <button id="prevWeek" aria-label="Vorige week">◀</button>
-    <strong id="weekLabel"></strong>
-    <button id="nextWeek" aria-label="Volgende week">▶</button>
-  </div>
-
-  <div class="content">
-    <h2>Deze week</h2>
-    <table class="week-table">
-      <thead>
-        <tr>
-          <th>Dag</th>
-          <th>10:00 – 12:00</th>
-          <th>15:00 – 17:30</th>
-          <th>18:30 – 20:00</th>
-        </tr>
-      </thead>
-      <tbody id="weekBody"></tbody>
-    </table>
-
-    <h2>Inschrijvingen</h2>
-    <div class="entries-list" id="entriesList"></div>
-  </div>
-
-  <button class="fab" id="fab" aria-label="Nieuwe afspraak toevoegen">+</button>
-
-  <div class="modal" id="modal" aria-hidden="true">
-    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="newVisitTitle">
-      <div class="modal-header">
-        <h2 id="newVisitTitle">Nieuwe afspraak</h2>
-        <button class="close-btn" id="closeModal" aria-label="Sluiten">×</button>
+  <div class="app-container">
+    <!-- HEADER & NAVIGATION -->
+    <header class="app-header">
+      <div class="header-content">
+        <a href="#" class="logo" data-view="home">
+          <span class="logo-icon">📅</span>
+          Bezoekplanner
+        </a>
+        
+        <div class="nav-tabs">
+          <button class="tab-button active" data-view="home">
+            🏠 Weekplanning
+          </button>
+          <button class="tab-button" data-view="registrations">
+            📋 Inschrijvingen
+          </button>
+        </div>
       </div>
+    </header>
 
-      <form id="visitForm">
-        <label>Locatie</label>
-        <select id="locatie" required>
-          <option value="">Kies locatie</option>
-          <option>Moeder – Revalidatiecentrum</option>
-          <option>Vader – Thuis</option>
-        </select>
-
-        <label>Naam</label>
-        <input id="naam" required placeholder="Bijv. Henk" />
-
-        <label>Datum</label>
-        <input type="date" id="datum" required />
-
-        <label>Tijd</label>
-        <select id="tijd" required>
-          <option value="">Kies tijd</option>
-          <option>10:00 – 12:00</option>
-          <option>15:00 – 17:30</option>
-          <option>18:30 – 20:00</option>
-        </select>
-
-        <label>Opmerking</label>
-        <input id="opmerking" placeholder="Bijv. alleen even koffiedrinken" />
-
-        <div class="checkbox-wrapper">
-          <input type="checkbox" id="vadermee" />
-          <label for="vadermee" style="margin:0; font-weight:normal;">Vader komt mee</label>
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+      <!-- HOME VIEW - WEEK PLANNING -->
+      <div id="homeView" class="view active">
+        <div class="week-header">
+          <div class="week-nav">
+            <h1>Week Planning</h1>
+            <div class="week-controls">
+              <button class="nav-btn" id="prevWeek">←</button>
+              <div class="current-week" id="weekLabel"></div>
+              <button class="nav-btn" id="nextWeek">→</button>
+            </div>
+          </div>
         </div>
 
-        <button type="submit" class="submit-btn">Opslaan</button>
-      </form>
-    </div>
-  </div>
-
-  <div class="modal" id="dayModal" aria-hidden="true">
-    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="dayModalTitle">
-      <div class="modal-header">
-        <h2 id="dayModalTitle">Inschrijvingen</h2>
-        <button class="close-btn" id="closeDayModal" aria-label="Sluiten">×</button>
+        <div class="calendar-grid" id="calendarGrid">
+          <!-- Days will be generated here -->
+        </div>
       </div>
-      <div id="dayModalContent"></div>
+
+      <!-- REGISTRATIONS VIEW -->
+      <div id="registrationsView" class="view">
+        <div class="registrations-header">
+          <h1>Alle Inschrijvingen</h1>
+          <div class="filters">
+            <select class="filter-select" id="filterLocation">
+              <option value="">Alle locaties</option>
+              <option>Moeder – Revalidatiecentrum</option>
+              <option>Vader – Thuis</option>
+            </select>
+            <select class="filter-select" id="filterWeek">
+              <option value="">Alle weken</option>
+              <!-- Weeks will be populated dynamically -->
+            </select>
+            <select class="filter-select" id="filterStatus">
+              <option value="">Alle status</option>
+              <option value="upcoming">Aankomend</option>
+              <option value="past">Vorige</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="registrations-list" id="registrationsList">
+          <!-- Registrations will be loaded here -->
+        </div>
+      </div>
+    </main>
+
+    <!-- FLOATING ACTION BUTTON -->
+    <button class="fab" id="fab" title="Nieuwe afspraak">+</button>
+
+    <!-- MODAL FOR NEW REGISTRATION -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Nieuwe Bezoekafspraak</h2>
+          <button class="modal-close" id="closeModal">&times;</button>
+        </div>
+        
+        <form id="visitForm">
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label" for="modalLocation">Locatie</label>
+              <select class="form-select" id="modalLocation" required>
+                <option value="">Kies een locatie</option>
+                <option>Moeder – Revalidatiecentrum</option>
+                <option>Vader – Thuis</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="modalName">Naam</label>
+              <input type="text" class="form-input" id="modalName" 
+                     placeholder="Vul uw naam in" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="modalDate">Datum</label>
+              <input type="date" class="form-input" id="modalDate" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="modalTime">Tijd</label>
+              <select class="form-select" id="modalTime" required>
+                <option value="">Kies een tijdslot</option>
+                <option value="T1">10:00 – 12:00 (ochtend)</option>
+                <option value="T2">15:00 – 17:30 (middag)</option>
+                <option value="T3">18:30 – 20:00 (avond)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="modalNote">Opmerking (optioneel)</label>
+              <input type="text" class="form-input" id="modalNote" 
+                     placeholder="Bijzonderheden of voorkeuren">
+            </div>
+
+            <div class="form-group">
+              <div class="form-checkbox">
+                <input type="checkbox" id="modalVaderMee">
+                <label for="modalVaderMee">Vader komt mee</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelModal">
+              Annuleren
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Afspraak Maken
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -387,7 +853,48 @@
     let entries = [];
     let currentWeekStart = getMondayOfWeek(new Date());
     let slotStatusCache = new Map();
+    let selectedDayForModal = null;
+    let selectedTimeForModal = null;
 
+    // ===== INITIALIZATION =====
+    document.addEventListener('DOMContentLoaded', function() {
+      setupNavigation();
+      loadEntries();
+      setupModal();
+      setupWeekNavigation();
+      setupFilters();
+    });
+
+    // ===== NAVIGATION =====
+    function setupNavigation() {
+      document.querySelectorAll('[data-view]').forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const viewId = this.dataset.view + 'View';
+          
+          // Update active tab
+          document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+          });
+          this.classList.add('active');
+          
+          // Switch view
+          document.querySelectorAll('.view').forEach(view => {
+            view.classList.remove('active');
+          });
+          document.getElementById(viewId).classList.add('active');
+          
+          // Refresh data for the view
+          if (viewId === 'homeView') {
+            renderCalendar();
+          } else if (viewId === 'registrationsView') {
+            renderRegistrationsList();
+          }
+        });
+      });
+    }
+
+    // ===== DATE FUNCTIONS =====
     function getMondayOfWeek(date) {
       const d = new Date(date);
       d.setHours(0, 0, 0, 0);
@@ -397,78 +904,48 @@
       return d;
     }
 
-    // Verbeterde datumverwerking - voorkomt timezone issues
-    function normalizeDate(input) {
-      if (!input) return "";
+    function normalizeDate(date) {
+      if (!date) return "";
       
-      // Als het al in YYYY-MM-DD formaat is
-      if (typeof input === 'string' && input.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        return input;
-      }
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return "";
       
-      // Parse datum zonder timezone issues
-      let dt;
-      if (typeof input === 'string') {
-        // Voor strings zoals "1/17/2024" of andere formaten
-        const parts = input.split('/');
-        if (parts.length === 3) {
-          // Assumeer MM/DD/YYYY formaat
-          dt = new Date(parts[2], parts[0] - 1, parts[1]);
-        } else {
-          dt = new Date(input);
-        }
-      } else {
-        dt = new Date(input);
-      }
-      
-      if (isNaN(dt.getTime())) return "";
-      
-      // Gebruik lokale datum zonder timezone conversie
-      const year = dt.getFullYear();
-      const month = String(dt.getMonth() + 1).padStart(2, '0');
-      const day = String(dt.getDate()).padStart(2, '0');
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
       
       return `${year}-${month}-${day}`;
     }
 
-    // Verbeterde datum parsing voor display
-    function parseDisplayDate(dateString) {
-      const [year, month, day] = dateString.split('-').map(Number);
-      return new Date(year, month - 1, day);
-    }
-
     function formatDateForDisplay(dateString) {
-      const date = parseDisplayDate(dateString);
+      const [year, month, day] = dateString.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
       return date.toLocaleDateString('nl-NL', { 
-        weekday: 'short', 
-        day: 'numeric', 
-        month: 'short' 
-      }).replace('.', '');
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
+      }).replace(/\./g, '');
     }
 
-    function formatDateLong(dateString) {
-      const date = parseDisplayDate(dateString);
-      const formatted = date.toLocaleDateString('nl-NL', { 
-        weekday: 'long', 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-      });
-      return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    function formatDateShort(dateString) {
+      const [year, month, day] = dateString.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
+      return date.toLocaleDateString('nl-NL', { 
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
+      }).replace(/\./g, '');
     }
 
-    const timeKey = t => t.includes('10') ? 'T1' : t.includes('15') ? 'T2' : t.includes('18') ? 'T3' : '';
-    const timeLabel = k => k==='T1'?'10:00–12:00':k==='T2'?'15:00–17:30':k==='T3'?'18:30–20:00':'';
-
-    function isRecentEnough(dateString) {
-      const targetDate = parseDisplayDate(dateString);
-      const today = new Date();
-      today.setHours(0,0,0,0);
-      const minDate = new Date(today);
-      minDate.setDate(minDate.getDate() - 7);
-      return targetDate >= minDate;
+    function getWeekNumber(date) {
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+      const week1 = new Date(d.getFullYear(), 0, 4);
+      return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
     }
 
+    // ===== DATA LOADING =====
     async function loadEntries() {
       try {
         const res = await fetch(SHEET_URL);
@@ -479,24 +956,83 @@
           naam: r[2],
           locatie: r[3],
           opmerking: r[4] || '',
-          vadermee: r[5] || 'Nee'
-        })).filter(e => e.datum); // Filter out entries with invalid dates
+          vadermee: r[5] || 'Nee',
+          id: Math.random().toString(36).substr(2, 9)
+        })).filter(e => e.datum);
         
-        // Clear cache when new data loads
         slotStatusCache.clear();
-        renderAll();
-      } catch(e) { 
-        console.error("Fout bij laden:", e); 
+        renderCalendar();
+        populateWeekFilter();
+        renderRegistrationsList();
+      } catch(e) {
+        console.error("Fout bij laden:", e);
+        showNotification("Kan gegevens niet laden", "error");
       }
     }
 
-    function getSlotStatus(datum, tKey) {
-      const cacheKey = `${datum}-${tKey}`;
+    // ===== CALENDAR RENDERING =====
+    function renderCalendar() {
+      const grid = document.getElementById('calendarGrid');
+      const weekLabel = document.getElementById('weekLabel');
+      
+      // Update week label
+      const end = new Date(currentWeekStart);
+      end.setDate(end.getDate() + 6);
+      weekLabel.textContent = `Week ${getWeekNumber(currentWeekStart)}: ${formatDateShort(normalizeDate(currentWeekStart))} - ${formatDateShort(normalizeDate(end))}`;
+      
+      // Clear grid
+      grid.innerHTML = '';
+      
+      // Generate days
+      for (let i = 0; i < 7; i++) {
+        const day = new Date(currentWeekStart);
+        day.setDate(day.getDate() + i);
+        const dateString = normalizeDate(day);
+        
+        const dayCard = document.createElement('div');
+        dayCard.className = 'day-card';
+        dayCard.dataset.date = dateString;
+        
+        // Day header
+        const dayHeader = `
+          <div class="day-header">
+            <div class="day-name">${day.toLocaleDateString('nl-NL', { weekday: 'long' })}</div>
+            <div class="day-date">${day.getDate()} ${day.toLocaleDateString('nl-NL', { month: 'short' })}</div>
+          </div>
+        `;
+        
+        // Time slots
+        const timeSlots = ['T1', 'T2', 'T3'].map(timeKey => {
+          const status = getSlotStatus(dateString, timeKey);
+          const timeLabel = timeKey === 'T1' ? '10:00-12:00' : 
+                           timeKey === 'T2' ? '15:00-17:30' : '18:30-20:00';
+          
+          return `
+            <div class="time-slot ${status.class}" 
+                 data-date="${dateString}" 
+                 data-time="${timeKey}"
+                 onclick="openRegistrationModal('${dateString}', '${timeKey}')">
+              <div class="slot-info">
+                <span>${timeLabel}</span>
+                <span>${status.text}</span>
+                ${status.vaderBadge ? '<span class="badge vader">Vader</span>' : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        dayCard.innerHTML = dayHeader + `<div class="time-slots">${timeSlots}</div>`;
+        grid.appendChild(dayCard);
+      }
+    }
+
+    function getSlotStatus(dateString, timeKey) {
+      const cacheKey = `${dateString}-${timeKey}`;
       if (slotStatusCache.has(cacheKey)) {
         return slotStatusCache.get(cacheKey);
       }
 
-      const matches = entries.filter(e => e.datum === datum && e.tijd === tKey);
+      const matches = entries.filter(e => e.datum === dateString && e.tijd === timeKey);
       let result;
       
       if (matches.length === 0) {
@@ -512,240 +1048,302 @@
       return result;
     }
 
-    function renderWeek() {
-      const tbody = document.getElementById('weekBody');
-      tbody.innerHTML = '';
-
-      const fragment = document.createDocumentFragment();
-
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(currentWeekStart);
-        d.setDate(d.getDate() + i);
-        const ds = normalizeDate(d);
-
-        const tr = document.createElement('tr');
-        
-        // Format dag kolom
-        const dayShort = d.toLocaleDateString('nl-NL', {weekday: 'short'}).replace('.', '');
-        const dayNum = d.getDate();
-        const monthShort = d.toLocaleDateString('nl-NL', {month: 'short'});
-        
-        tr.innerHTML = `
-          <td class="day-cell" data-date="${ds}">
-            <button class="day-button" aria-label="Toon inschrijvingen voor ${ds}">
-              ${dayShort} ${dayNum} ${monthShort}
-            </button>
-          </td>`;
-
-        ['T1','T2','T3'].forEach(k => {
-          const s = getSlotStatus(ds, k);
-          let badgeHtml = s.vaderBadge ? '<span class="vader-badge">Vader mee</span>' : '';
-          const td = document.createElement('td');
-          td.innerHTML = `
-            <div class="slot ${s.class}">
-              ${s.text}
-              ${badgeHtml}
-            </div>`;
-          tr.appendChild(td);
-        });
-
-        fragment.appendChild(tr);
-      }
-
-      tbody.appendChild(fragment);
-      activateDayClicks();
-    }
-
-    function renderEntries() {
-      const container = document.getElementById('entriesList');
-      container.innerHTML = '';
-
-      // Sorteer op datum en vervolgens tijdvolgorde
-      const order = { T1: 1, T2: 2, T3: 3 };
-      const sortedEntries = [...entries].sort((a,b) => {
-        const dateA = parseDisplayDate(a.datum);
-        const dateB = parseDisplayDate(b.datum);
-        return dateA - dateB || (order[a.tijd] - order[b.tijd]);
+    // ===== WEEK NAVIGATION =====
+    function setupWeekNavigation() {
+      document.getElementById('prevWeek').addEventListener('click', () => {
+        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+        renderCalendar();
       });
-
-      const fragment = document.createDocumentFragment();
-
-      sortedEntries.forEach(e => {
-        const card = document.createElement('div');
-        card.className = 'entry-card';
-        
-        // Format datum voor display
-        const formattedDate = formatDateForDisplay(e.datum);
-        
-        card.innerHTML = `
-          <div class="top">
-            <div class="naam">${e.naam}</div>
-            <div class="datum-tijd">${formattedDate} • ${timeLabel(e.tijd)}</div>
-          </div>
-          <div class="locatie">${e.locatie}</div>
-          ${e.opmerking ? `<div class="opmerking">${e.opmerking}</div>` : ''}
-          ${e.vadermee === 'Ja' ? '<span class="vader-mee">Vader mee</span>' : ''}
-        `;
-        fragment.appendChild(card);
-      });
-
-      container.appendChild(fragment);
-    }
-
-    function activateDayClicks() {
-      document.querySelectorAll(".day-cell").forEach(cell => {
-        cell.onclick = () => {
-          const datum = cell.dataset.date;
-          openDayModal(datum);
-        };
-      });
-    }
-
-    function openDayModal(datum) {
-      const modal = document.getElementById("dayModal");
-      const title = document.getElementById("dayModalTitle");
-      const content = document.getElementById("dayModalContent");
-
-      // Filter en sorteer op tijd
-      const order = { T1: 1, T2: 2, T3: 3 };
-      const list = entries
-        .filter(e => e.datum === datum)
-        .sort((a,b) => order[a.tijd] - order[b.tijd]);
-
-      const pretty = formatDateLong(datum);
-      title.textContent = `Inschrijvingen voor ${pretty}`;
-
-      if (list.length === 0) {
-        content.innerHTML = `<p style="color: var(--text-secondary);">Geen inschrijvingen.</p>`;
-      } else {
-        content.innerHTML = list.map(e => `
-          <div class="entry-card">
-            <div class="top">
-              <div class="naam">${e.naam}</div>
-              <div class="datum-tijd">${timeLabel(e.tijd)}</div>
-            </div>
-            <div class="locatie">${e.locatie}</div>
-            ${e.opmerking ? `<div class="opmerking">${e.opmerking}</div>` : ''}
-            ${e.vadermee === 'Ja' ? '<span class="vader-mee">Vader mee</span>' : ''}
-          </div>
-        `).join('');
-      }
-
-      modal.classList.add("active");
-      modal.setAttribute('aria-hidden', 'false');
-    }
-
-    function renderAll() {
-      // Clear cache when re-rendering
-      slotStatusCache.clear();
       
-      const end = new Date(currentWeekStart);
-      end.setDate(end.getDate() + 6);
-      const fmt = d => d.toLocaleDateString('nl-NL', {day:'numeric', month:'long'});
-      document.getElementById('weekLabel').textContent = `${fmt(currentWeekStart)} – ${fmt(end)}`;
-
-      renderWeek();
-      renderEntries();
+      document.getElementById('nextWeek').addEventListener('click', () => {
+        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+        renderCalendar();
+      });
     }
 
-    // Navigatie
-    document.getElementById('prevWeek').onclick = () => {
-      currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-      renderAll();
-    };
-    document.getElementById('nextWeek').onclick = () => {
-      currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-      renderAll();
-    };
-
-    // Modal handling
-    const modal = document.getElementById('modal');
-    const fab = document.getElementById('fab');
-    const closeModal = document.getElementById('closeModal');
-    const form = document.getElementById('visitForm');
-
-    fab.onclick = () => { 
-      modal.classList.add('active'); 
-      modal.setAttribute('aria-hidden', 'false'); 
-    };
-    
-    closeModal.onclick = () => { 
-      modal.classList.remove('active'); 
-      modal.setAttribute('aria-hidden', 'true'); 
-    };
-    
-    modal.onclick = e => { 
-      if (e.target === modal) { 
-        modal.classList.remove('active'); 
-        modal.setAttribute('aria-hidden', 'true'); 
-      } 
-    };
-
-    // Day modal handling
-    const dayModal = document.getElementById("dayModal");
-    const closeDayModal = document.getElementById("closeDayModal");
-    
-    closeDayModal.onclick = () => { 
-      dayModal.classList.remove('active'); 
-      dayModal.setAttribute('aria-hidden', 'true'); 
-    };
-    
-    dayModal.onclick = e => { 
-      if (e.target === dayModal) { 
-        dayModal.classList.remove('active'); 
-        dayModal.setAttribute('aria-hidden', 'true'); 
-      } 
-    };
-
-    // Form submit
-    form.onsubmit = async e => {
-      e.preventDefault();
-
-      const datum = normalizeDate(form.datum.value);
-      if (!datum) return alert("Ongeldige datum.");
-      if (!isRecentEnough(datum)) return alert("Maximaal 7 dagen terug boeken.");
-
-      const key = timeKey(form.tijd.value);
-      const locatie = form.locatie.value;
-
-      if (!key) return alert("Kies een geldige tijd.");
-      if (!locatie) return alert("Kies een locatie.");
-
-      if (entries.some(en => en.datum === datum && en.tijd === key && en.locatie === locatie)) {
-        return alert("Dit tijdslot is al bezet op deze locatie.");
+    // ===== REGISTRATIONS LIST =====
+    function renderRegistrationsList() {
+      const container = document.getElementById('registrationsList');
+      const locationFilter = document.getElementById('filterLocation').value;
+      const weekFilter = document.getElementById('filterWeek').value;
+      const statusFilter = document.getElementById('filterStatus').value;
+      
+      let filtered = [...entries];
+      
+      // Apply filters
+      if (locationFilter) {
+        filtered = filtered.filter(e => e.locatie === locationFilter);
       }
+      
+      if (weekFilter) {
+        filtered = filtered.filter(e => getWeekNumber(e.datum) === parseInt(weekFilter));
+      }
+      
+      if (statusFilter === 'upcoming') {
+        const today = normalizeDate(new Date());
+        filtered = filtered.filter(e => e.datum >= today);
+      } else if (statusFilter === 'past') {
+        const today = normalizeDate(new Date());
+        filtered = filtered.filter(e => e.datum < today);
+      }
+      
+      // Sort by date (newest first)
+      filtered.sort((a, b) => new Date(b.datum) - new Date(a.datum));
+      
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div>📭</div>
+            <h3>Geen inschrijvingen gevonden</h3>
+            <p class="text-muted">${locationFilter || weekFilter || statusFilter ? 'Probeer andere filters' : 'Maak je eerste afspraak!'}</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = filtered.map(entry => {
+        const timeLabel = entry.tijd === 'T1' ? '10:00-12:00' : 
+                         entry.tijd === 'T2' ? '15:00-17:30' : '18:30-20:00';
+        
+        return `
+          <div class="registration-card">
+            <div class="card-header">
+              <h3>${entry.naam}</h3>
+              <div class="card-date">${formatDateForDisplay(entry.datum)}</div>
+            </div>
+            
+            <div class="card-details">
+              <div class="detail-item">
+                <i>Tijd:</i> <span>${timeLabel}</span>
+              </div>
+              <div class="detail-item">
+                <i>Locatie:</i> <span>${entry.locatie}</span>
+              </div>
+            </div>
+            
+            ${entry.opmerking ? `
+              <div class="detail-item">
+                <i>Opmerking:</i> <span>${entry.opmerking}</span>
+              </div>
+            ` : ''}
+            
+            <div class="card-footer">
+              <div class="tags">
+                ${entry.vadermee === 'Ja' ? '<span class="tag vader">Vader mee</span>' : ''}
+                ${entry.opmerking ? '<span class="tag opmerking">Heeft opmerking</span>' : ''}
+              </div>
+              <div class="text-muted">
+                Gemaakt: ${new Date(entry.datum).toLocaleDateString('nl-NL')}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
 
-      const entry = {
-        datum,
-        tijd: key,
-        naam: form.naam.value.trim(),
-        locatie,
-        opmerking: form.opmerking.value.trim(),
-        vadermee: form.vadermee.checked ? 'Ja' : 'Nee'
+    function populateWeekFilter() {
+      const filter = document.getElementById('filterWeek');
+      const weeks = new Set();
+      
+      entries.forEach(entry => {
+        weeks.add(getWeekNumber(entry.datum));
+      });
+      
+      // Clear existing options except first
+      filter.innerHTML = '<option value="">Alle weken</option>';
+      
+      // Add week options
+      Array.from(weeks).sort((a, b) => b - a).forEach(week => {
+        const option = document.createElement('option');
+        option.value = week;
+        option.textContent = `Week ${week}`;
+        filter.appendChild(option);
+      });
+    }
+
+    function setupFilters() {
+      ['filterLocation', 'filterWeek', 'filterStatus'].forEach(id => {
+        document.getElementById(id).addEventListener('change', renderRegistrationsList);
+      });
+    }
+
+    // ===== MODAL FUNCTIONS =====
+    function setupModal() {
+      const modal = document.getElementById('modalOverlay');
+      const fab = document.getElementById('fab');
+      const closeBtn = document.getElementById('closeModal');
+      const cancelBtn = document.getElementById('cancelModal');
+      const form = document.getElementById('visitForm');
+      
+      // Open modal
+      fab.addEventListener('click', () => {
+        selectedDayForModal = null;
+        selectedTimeForModal = null;
+        resetModalForm();
+        modal.classList.add('active');
+      });
+      
+      // Close modal
+      closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+      cancelBtn.addEventListener('click', () => modal.classList.remove('active'));
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+      });
+      
+      // Form submission
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const entry = {
+          datum: normalizeDate(document.getElementById('modalDate').value),
+          tijd: document.getElementById('modalTime').value,
+          naam: document.getElementById('modalName').value.trim(),
+          locatie: document.getElementById('modalLocation').value,
+          opmerking: document.getElementById('modalNote').value.trim(),
+          vadermee: document.getElementById('modalVaderMee').checked ? 'Ja' : 'Nee'
+        };
+        
+        if (!validateEntry(entry)) return;
+        
+        try {
+          // Simulate API call
+          await fetch(SHEET_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(entry)
+          });
+          
+          // Add to local data
+          entries.push(entry);
+          slotStatusCache.clear();
+          
+          // Update UI
+          renderCalendar();
+          renderRegistrationsList();
+          modal.classList.remove('active');
+          showNotification("Afspraak succesvol gemaakt!", "success");
+          
+          // Reset form
+          form.reset();
+          
+        } catch(err) {
+          console.error(err);
+          showNotification("Fout bij opslaan", "error");
+        }
+      });
+    }
+
+    function openRegistrationModal(dateString, timeKey) {
+      const status = getSlotStatus(dateString, timeKey);
+      if (status.class === 'full') {
+        showNotification("Dit tijdslot is vol", "warning");
+        return;
+      }
+      
+      selectedDayForModal = dateString;
+      selectedTimeForModal = timeKey;
+      
+      // Set modal values
+      document.getElementById('modalDate').value = dateString;
+      document.getElementById('modalTime').value = timeKey;
+      
+      // Open modal
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function resetModalForm() {
+      document.getElementById('visitForm').reset();
+      document.getElementById('modalDate').value = '';
+      document.getElementById('modalTime').value = '';
+    }
+
+    function validateEntry(entry) {
+      if (!entry.datum) {
+        showNotification("Selecteer een datum", "error");
+        return false;
+      }
+      
+      if (!entry.tijd) {
+        showNotification("Selecteer een tijd", "error");
+        return false;
+      }
+      
+      if (!entry.locatie) {
+        showNotification("Selecteer een locatie", "error");
+        return false;
+      }
+      
+      if (!entry.naam) {
+        showNotification("Vul een naam in", "error");
+        return false;
+      }
+      
+      // Check for duplicates
+      const isDuplicate = entries.some(e => 
+        e.datum === entry.datum && 
+        e.tijd === entry.tijd && 
+        e.locatie === entry.locatie
+      );
+      
+      if (isDuplicate) {
+        showNotification("Dit tijdslot is al bezet op deze locatie", "error");
+        return false;
+      }
+      
+      return true;
+    }
+
+    // ===== NOTIFICATION SYSTEM =====
+    function showNotification(message, type = 'info') {
+      // Remove existing notification
+      const existing = document.querySelector('.notification');
+      if (existing) existing.remove();
+      
+      const colors = {
+        success: '#34c759',
+        error: '#ff3b30',
+        warning: '#ff9500',
+        info: '#007aff'
       };
+      
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${colors[type]};
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 3000;
+        animation: slideInRight 0.3s ease;
+        max-width: 300px;
+      `;
+      
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
 
-      entries.push(entry);
-
-      try {
-        await fetch(SHEET_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          body: JSON.stringify(entry)
-        });
-
-        renderAll();
-        form.reset();
-        modal.classList.remove('active');
-        modal.setAttribute('aria-hidden', 'true');
-      } catch(err) {
-        console.error(err);
-        alert("Opslaan mislukt – probeer opnieuw.");
-        entries.pop();
+    // Add notification animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
       }
-    };
-
-    // Initialize
-    loadEntries();
+      @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
   </script>
 </body>
 </html>
