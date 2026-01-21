@@ -15,9 +15,9 @@
       --booked: #ff9500;
       --full: #ff3b30;
       --border: #c7c7cc;
-      --moeder: #007aff;   /* blauw voor moeder */
-      --vader: #ff9500;    /* oranje voor vader */
-      --both: #af52de;     /* paars voor beide */
+      --moeder: #007aff;
+      --vader: #ff9500;
+      --both: #af52de;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -28,14 +28,13 @@
       line-height: 1.4;
       font-size: 16px;
     }
-    header { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; height: 1px; }
     .weeknav {
       display: flex; align-items: center; justify-content: space-between; padding: 10px 12px;
-      background: white; border-bottom: 1px solid var(--border);
+      background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
     }
     .weeknav button { background: transparent; border: none; font-size: 1.5rem; color: var(--primary); padding: 6px 12px; font-weight: 600; cursor: pointer; }
     .weeknav strong { font-size: 1rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; text-align: center; }
-    .content { padding: 12px 10px; padding-bottom: 90px; }
+    .content { padding: 12px 10px; padding-bottom: 100px; }
     
     .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -10px; padding: 0 10px; }
     .week-table { width: 100%; min-width: 380px; border-collapse: separate; border-spacing: 0 6px; }
@@ -74,43 +73,21 @@
     .entry-card .opmerking { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
     .vader-mee { background: #e8f0fe; color: #0062cc; padding: 2px 7px; border-radius: 10px; font-size: 0.75rem; margin-top: 6px; display: inline-block; }
     .delete-btn { position: absolute; top: 8px; right: 8px; background: var(--full); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; border: none; }
-    .fab { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; width: 56px; height: 56px; border-radius: 50%; font-size: 2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,122,255,0.3); border: none; cursor: pointer; z-index: 100; }
-    .fab:active { transform: translateX(-50%) scale(0.94); }
 
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: flex-end; z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
-    .modal.active { opacity: 1; visibility: visible; }
-    .modal-content { background: white; width: 100%; max-height: 92vh; border-radius: 20px 20px 0 0; padding: 20px 16px; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s ease; }
-    .modal.active .modal-content { transform: translateY(0); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .close-btn { background: none; border: none; font-size: 1.8rem; color: var(--text-secondary); cursor: pointer; }
-    form label { display: block; margin: 14px 0 5px; font-weight: 600; font-size: 0.95rem; color: var(--text); }
-    input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; background: #f9f9f9; }
-    .checkbox-wrapper { display: flex; align-items: center; gap: 10px; margin: 16px 0; }
-    .submit-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 600; margin-top: 16px; cursor: pointer; }
-
-    /* Pagina structuur */
-    .page { display: none; }
-    .page.active { display: block; }
-    .back-btn { background: var(--primary); color: white; padding: 10px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; margin-bottom: 16px; width: 100%; }
-    .bulletin-content { background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.95rem; line-height: 1.5; }
-    .free-slots { margin-top: 20px; }
-    .free-slots h3 { font-size: 1.1rem; margin: 12px 0 8px; }
-    .free-slots ul { list-style: none; padding: 0; }
-    .free-slots li { background: white; padding: 8px; margin-bottom: 8px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9rem; }
-
-    .btn-group { display: flex; gap: 12px; margin-bottom: 16px; }
+    .btn-group { display: flex; gap: 12px; margin: 20px 0; }
     .btn-group button { flex: 1; background: var(--primary); color: white; padding: 12px; border: none; border-radius: 12px; font-size: 1rem; cursor: pointer; }
+
+    .free-slots { margin-top: 20px; }
+    .free-slots h2 { font-size: 1.2rem; margin-bottom: 8px; }
+    .free-slots ul { list-style: none; padding: 0; }
+    .free-slots li { background: white; padding: 8px; margin-bottom: 6px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9rem; }
 
     @media (min-width: 500px) {
       .content { max-width: 460px; margin: 0 auto; padding: 16px; }
-      .fab { left: calc(50% + 200px); transform: none; }
-      .table-wrapper { margin: 0; padding: 0; overflow-x: visible; }
-      .week-table { min-width: auto; }
     }
   </style>
 </head>
 <body>
-<header></header>
 
 <div class="weeknav">
   <button id="prevWeek">◀</button>
@@ -119,51 +96,47 @@
 </div>
 
 <div class="content">
-  <!-- Hoofdpagina -->
-  <div id="mainPage" class="page active">
-    <div class="legend">
-      <strong>Legenda stipjes:</strong><br>
-      <span class="indicator-moeder">●</span> Iemand bij Moeder<br>
-      <span class="indicator-vader">●</span> Iemand bij Vader<br>
-      <span class="indicator-both">●</span> Beide locaties bezoek
-    </div>
 
-    <div class="table-wrapper">
-      <table class="week-table">
-        <thead>
-          <tr>
-            <th>Dag</th>
-            <th>10-12</th>
-            <th>15-17:30</th>
-            <th>18:30-20</th>
-          </tr>
-        </thead>
-        <tbody id="weekBody"></tbody>
-      </table>
-    </div>
-
-    <div class="free-slots">
-      <h2>Vrije slots vandaag + komende 2 dagen</h2>
-      <div id="freeSlotsList"></div>
-    </div>
-
-    <div class="btn-group">
-      <button onclick="showPage('entriesPage')">Inschrijvingen</button>
-      <button onclick="showPage('formPage')">Inschrijven</button>
-      <button onclick="showPage('bulletinPage')">Bulletin</button>
-    </div>
+  <div class="legend">
+    <strong>Legenda stipjes:</strong><br>
+    <span class="indicator-moeder">●</span> Iemand bij Moeder<br>
+    <span class="indicator-vader">●</span> Iemand bij Vader<br>
+    <span class="indicator-both">●</span> Beide locaties bezoek
   </div>
 
-  <!-- Inschrijvingen pagina -->
-  <div id="entriesPage" class="page">
-    <button class="back-btn" onclick="showPage('mainPage')">Terug</button>
-    <h2>Inschrijvingen</h2>
+  <div class="table-wrapper">
+    <table class="week-table">
+      <thead>
+        <tr>
+          <th>Dag</th>
+          <th>10-12</th>
+          <th>15-17:30</th>
+          <th>18:30-20</th>
+        </tr>
+      </thead>
+      <tbody id="weekBody"></tbody>
+    </table>
+  </div>
+
+  <div class="free-slots">
+    <h2>Vrije slots vandaag + komende 2 dagen</h2>
+    <div id="freeSlotsList"></div>
+  </div>
+
+  <div class="btn-group">
+    <button onclick="showPage('entriesPage')">Inschrijvingen bekijken</button>
+    <button onclick="showPage('formPage')">Nieuwe afspraak maken</button>
+  </div>
+
+  <!-- Subpagina's -->
+  <div id="entriesPage" class="page" style="display:none;">
+    <button onclick="showPage('mainPage')" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:12px; margin-bottom:16px; font-size:1rem;">Terug naar hoofd</button>
+    <h2>Alle inschrijvingen</h2>
     <div class="entries-list" id="entriesList"></div>
   </div>
 
-  <!-- Inschrijf pagina -->
-  <div id="formPage" class="page">
-    <button class="back-btn" onclick="showPage('mainPage')">Terug</button>
+  <div id="formPage" class="page" style="display:none;">
+    <button onclick="showPage('mainPage')" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:12px; margin-bottom:16px; font-size:1rem;">Terug naar hoofd</button>
     <h2>Nieuwe afspraak</h2>
     <form id="visitForm">
       <label>Locatie</label>
@@ -194,17 +167,6 @@
     </form>
   </div>
 
-  <!-- Bulletin pagina -->
-  <div id="bulletinPage" class="page">
-    <button class="back-btn" onclick="showPage('mainPage')">Terug</button>
-    <h2>Informatie Bulletin</h2>
-    <div class="bulletin-content">
-      <!-- Hier je bulletin-tekst, bijv. nieuws/updates -->
-      Welkom bij het bulletin. Hier kun je belangrijke info plaatsen, zoals bezoekregels of updates.<br><br>
-      Voorbeeld: Moeder voelt zich beter vandaag!<br>
-      (Pas dit aan in de code of maak het editable als nodig.)
-    </div>
-  </div>
 </div>
 
 <script>
@@ -222,9 +184,7 @@ function getMondayOfWeek(date) {
 
 function normalizeDate(input) {
   if (!input) return "";
-  // Try YYYY-MM-DD
   if (input.match(/^\d{4}-\d{2}-\d{2}$/)) return input;
-  // Try DD-MM-YYYY
   const parts = input.match(/(\d{1,2})-(\d{1,2})-(\d{4})/);
   if (parts) {
     const dt = new Date(parts[3], parts[2] - 1, parts[1]);
@@ -232,7 +192,6 @@ function normalizeDate(input) {
       return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
     }
   }
-  // Fallback to new Date
   const dt = new Date(input);
   if (isNaN(dt.getTime())) return "";
   return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
@@ -264,6 +223,7 @@ function isRecentEnough(d) {
 async function loadEntries() {
   try {
     const res = await fetch(SHEET_URL);
+    if (!res.ok) throw new Error("Netwerkfout: " + res.status);
     const data = await res.json();
     entries = data.slice(1).map(r => ({
       datum: normalizeDate(r[0]),
@@ -274,7 +234,10 @@ async function loadEntries() {
       vadermee: r[5] || 'Nee'
     }));
     renderAll();
-  } catch(e) { console.error("Fout bij laden:", e); }
+  } catch(e) {
+    console.error("Fout bij laden inschrijvingen:", e);
+    alert("Kon de inschrijvingen niet laden. Controleer je internet of de Google Script URL.");
+  }
 }
 
 function getSlotStatus(datum, tKey) {
@@ -292,7 +255,6 @@ function getDayIndicator(datum) {
   const dayEntries = entries.filter(e => e.datum === datum);
   const heeftVader = dayEntries.some(e => e.locatie.includes('Vader'));
   const heeftMoeder = dayEntries.some(e => e.locatie.includes('Moeder'));
-  
   if (heeftVader && heeftMoeder) return 'both';
   if (heeftVader) return 'vader';
   if (heeftMoeder) return 'moeder';
@@ -301,18 +263,13 @@ function getDayIndicator(datum) {
 
 function showDayDetails(datum) {
   const dayEntries = entries.filter(e => e.datum === datum);
-  if (dayEntries.length === 0) {
-    alert(`Op ${datum} komt niemand.`);
-    return;
-  }
-
+  if (dayEntries.length === 0) return alert(`Op ${datum} komt niemand.`);
   let message = `Afspraken op ${datum}:\n\n`;
   dayEntries.forEach(e => {
     const mee = e.vadermee === 'Ja' ? ' (Vader mee)' : '';
     const opm = e.opmerking ? ` - ${e.opmerking}` : '';
     message += `${e.naam} • ${timeLabel(e.tijd)}${mee} • ${e.locatie}${opm}\n`;
   });
-
   alert(message);
 }
 
@@ -358,68 +315,25 @@ function renderFreeSlots() {
     ['Moeder – Revalidatiecentrum', 'Vader – Thuis'].forEach(loc => {
       ['T1', 'T2', 'T3'].forEach(k => {
         const matches = entries.filter(e => e.datum === ds && e.tijd === k && e.locatie === loc);
-        if (matches.length === 0) {
-          freeList.push(`${loc} - ${timeLabel(k)}`);
-        }
+        if (matches.length === 0) freeList.push(`${loc} - ${timeLabel(k)}`);
       });
-      // Check hele dag vrij
-      const hasWholeDay = entries.some(e => e.datum === ds && e.tijd === 'T0' && e.locatie === loc);
-      if (!hasWholeDay) {
+      if (!entries.some(e => e.datum === ds && e.tijd === 'T0' && e.locatie === loc)) {
         freeList.push(`${loc} - Hele dag`);
       }
     });
 
     if (freeList.length > 0) {
+      const h3 = document.createElement('h3');
+      h3.textContent = `${dayLabel} (${ds})`;
+      container.appendChild(h3);
       const ul = document.createElement('ul');
       freeList.forEach(slot => {
         const li = document.createElement('li');
         li.textContent = slot;
         ul.appendChild(li);
       });
-      const h3 = document.createElement('h3');
-      h3.textContent = `${dayLabel} (${ds})`;
-      container.appendChild(h3);
       container.appendChild(ul);
     }
-  }
-}
-
-function renderEntries() {
-  const container = document.getElementById('entriesList');
-  container.innerHTML = '';
-  entries.sort((a,b) => new Date(a.datum) - new Date(b.datum) || a.tijd.localeCompare(b.tijd));
-  entries.forEach(e => {
-    const card = document.createElement('div');
-    card.className = 'entry-card';
-    card.innerHTML = `
-      <div class="top">
-        <div class="naam">${e.naam}</div>
-        <div class="datum-tijd">${e.datum} • ${timeLabel(e.tijd)}</div>
-      </div>
-      <div class="locatie">${e.locatie}</div>
-      ${e.opmerking ? `<div class="opmerking">${e.opmerking}</div>` : ''}
-      ${e.vadermee === 'Ja' ? '<span class="vader-mee">Vader mee</span>' : ''}
-      <button class="delete-btn" onclick="deleteEntry('${e.datum}', '${e.tijd}', '${e.naam}', '${e.locatie}')">Intrekken</button>
-    `;
-    container.appendChild(card);
-  });
-}
-
-async function deleteEntry(datum, tijd, naam, locatie) {
-  if (!confirm("Weet je zeker dat je deze inschrijving wilt intrekken?")) return;
-  const entry = { action: 'delete', datum, tijd, naam, locatie };
-  try {
-    await fetch(SHEET_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(entry)
-    });
-    entries = entries.filter(e => !(e.datum === datum && e.tijd === tijd && e.naam === naam && e.locatie === locatie));
-    renderAll();
-  } catch(err) {
-    console.error(err);
-    alert("Intrekken mislukt – probeer opnieuw.");
   }
 }
 
@@ -430,15 +344,30 @@ function renderAll() {
   document.getElementById('weekLabel').textContent = `${fmt(currentWeekStart)} – ${fmt(end)}`;
   renderWeek();
   renderFreeSlots();
-  if (document.getElementById('entriesPage').classList.contains('active')) {
-    renderEntries();
-  }
 }
 
 function showPage(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(pageId).classList.add('active');
-  if (pageId === 'entriesPage') renderEntries();
+  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+  document.getElementById(pageId).style.display = 'block';
+  if (pageId === 'entriesPage') {
+    const container = document.getElementById('entriesList');
+    container.innerHTML = '';
+    entries.sort((a,b) => new Date(a.datum) - new Date(b.datum) || a.tijd.localeCompare(b.tijd));
+    entries.forEach(e => {
+      const card = document.createElement('div');
+      card.className = 'entry-card';
+      card.innerHTML = `
+        <div class="top">
+          <div class="naam">${e.naam}</div>
+          <div class="datum-tijd">${e.datum} • ${timeLabel(e.tijd)}</div>
+        </div>
+        <div class="locatie">${e.locatie}</div>
+        ${e.opmerking ? `<div class="opmerking">${e.opmerking}</div>` : ''}
+        ${e.vadermee === 'Ja' ? '<span class="vader-mee">Vader mee</span>' : ''}
+      `;
+      container.appendChild(card);
+    });
+  }
 }
 
 document.getElementById('prevWeek').onclick = () => { currentWeekStart.setDate(currentWeekStart.getDate() - 7); renderAll(); };
@@ -448,9 +377,11 @@ const form = document.getElementById('visitForm');
 form.onsubmit = async e => {
   e.preventDefault();
   const datum = normalizeDate(form.datum.value);
-  if (!isRecentEnough(datum)) return alert("Maximaal 7 dagen terug boeken.");
+  if (!datum || !isRecentEnough(datum)) return alert("Ongeldige of te oude datum.");
   const key = timeKey(form.tijd.value);
   const locatie = form.locatie.value;
+
+  if (!key || !locatie) return alert("Vul alle velden in.");
 
   const dayEntries = entries.filter(en => en.datum === datum && en.locatie === locatie);
   const hasWholeDay = dayEntries.some(en => en.tijd === 'T0');
@@ -483,12 +414,13 @@ form.onsubmit = async e => {
     showPage('mainPage');
   } catch(err) {
     console.error(err);
-    alert("Opslaan mislukt – probeer opnieuw.");
+    alert("Opslaan mislukt – controleer verbinding of script.");
     entries.pop();
   }
 };
 
 loadEntries();
+renderAll(); // Zorg dat week direct getoond wordt
 </script>
 </body>
 </html>
