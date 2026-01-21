@@ -152,6 +152,8 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 15px;
     }
 
     .week-nav h1 {
@@ -164,6 +166,37 @@
       display: flex;
       gap: 10px;
       align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .view-toggle {
+      display: flex;
+      background: #f1f1f6;
+      border-radius: 8px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .view-toggle-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .view-toggle-btn.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: var(--shadow);
     }
 
     .nav-btn {
@@ -195,12 +228,28 @@
       min-width: 200px;
     }
 
-    /* ===== WEEK CALENDAR GRID ===== */
+    /* ===== WEEK VIEW CONTAINERS ===== */
+    .week-view-container {
+      display: none;
+    }
+
+    .week-view-container.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* ===== CALENDAR GRID VIEW ===== */
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 10px;
       margin-bottom: 30px;
+    }
+
+    @media (max-width: 1024px) {
+      .calendar-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
     }
 
     @media (max-width: 768px) {
@@ -222,6 +271,7 @@
       box-shadow: var(--shadow);
       transition: var(--transition);
       border: 1px solid transparent;
+      min-height: 200px;
     }
 
     .day-card:hover {
@@ -310,6 +360,119 @@
     .badge.vader {
       background: var(--primary);
       color: white;
+    }
+
+    /* ===== TABLE VIEW ===== */
+    .calendar-table-container {
+      overflow-x: auto;
+      margin-bottom: 30px;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .calendar-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    .calendar-table th {
+      background: #f8f9fa;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 16px 12px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+    }
+
+    .calendar-table td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      min-width: 100px;
+    }
+
+    .calendar-table tr:hover {
+      background: #fafafa;
+    }
+
+    .table-day-header {
+      background: var(--primary);
+      color: white;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .table-time-header {
+      background: #f1f1f6;
+      color: var(--text-secondary);
+      padding: 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+      display: block;
+    }
+
+    .table-slot {
+      padding: 10px;
+      border-radius: 8px;
+      margin: 4px 0;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .table-slot:hover:not(.full) {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .table-slot.free {
+      background: rgba(52, 199, 89, 0.1);
+      color: var(--free);
+      border-color: rgba(52, 199, 89, 0.2);
+    }
+
+    .table-slot.booked {
+      background: rgba(255, 149, 0, 0.1);
+      color: var(--booked);
+      border-color: rgba(255, 149, 0, 0.2);
+    }
+
+    .table-slot.full {
+      background: rgba(255, 59, 48, 0.1);
+      color: var(--full);
+      border-color: rgba(255, 59, 48, 0.2);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .slot-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .slot-status {
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .slot-badges {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     /* ===== REGISTRATIONS VIEW ===== */
@@ -452,7 +615,7 @@
       font-style: normal;
     }
 
-    /* ===== MODAL (HERBOUWD) ===== */
+    /* ===== MODAL ===== */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -651,8 +814,18 @@
       }
       
       .week-nav {
-        flex-wrap: wrap;
+        flex-direction: column;
+        align-items: stretch;
         gap: 15px;
+      }
+      
+      .week-controls {
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      
+      .view-toggle {
+        width: 100%;
         justify-content: center;
       }
       
@@ -660,6 +833,7 @@
         order: -1;
         width: 100%;
         text-align: center;
+        margin-bottom: 10px;
       }
       
       .fab {
@@ -668,6 +842,10 @@
         width: 50px;
         height: 50px;
         font-size: 1.5rem;
+      }
+      
+      .calendar-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
 
@@ -692,6 +870,14 @@
       
       .filter-select {
         width: 100%;
+      }
+      
+      .view-toggle-btn span {
+        display: none;
+      }
+      
+      .view-toggle-btn {
+        padding: 8px 12px;
       }
     }
 
@@ -740,12 +926,35 @@
               <button class="nav-btn" id="prevWeek">←</button>
               <div class="current-week" id="weekLabel"></div>
               <button class="nav-btn" id="nextWeek">→</button>
+              
+              <div class="view-toggle">
+                <button class="view-toggle-btn active" data-view="grid">
+                  <span>🟪</span>
+                  <span>Kaartjes</span>
+                </button>
+                <button class="view-toggle-btn" data-view="table">
+                  <span>📊</span>
+                  <span>Tabel</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="calendar-grid" id="calendarGrid">
-          <!-- Days will be generated here -->
+        <!-- Grid View -->
+        <div id="gridView" class="week-view-container active">
+          <div class="calendar-grid" id="calendarGrid">
+            <!-- Days will be generated here -->
+          </div>
+        </div>
+
+        <!-- Table View -->
+        <div id="tableView" class="week-view-container">
+          <div class="calendar-table-container">
+            <table class="calendar-table" id="calendarTable">
+              <!-- Table will be generated here -->
+            </table>
+          </div>
         </div>
       </div>
 
@@ -855,10 +1064,12 @@
     let slotStatusCache = new Map();
     let selectedDayForModal = null;
     let selectedTimeForModal = null;
+    let currentView = 'grid'; // 'grid' or 'table'
 
     // ===== INITIALIZATION =====
     document.addEventListener('DOMContentLoaded', function() {
       setupNavigation();
+      setupViewToggle();
       loadEntries();
       setupModal();
       setupWeekNavigation();
@@ -868,27 +1079,58 @@
     // ===== NAVIGATION =====
     function setupNavigation() {
       document.querySelectorAll('[data-view]').forEach(button => {
-        button.addEventListener('click', function(e) {
-          e.preventDefault();
-          const viewId = this.dataset.view + 'View';
+        if (button.dataset.view === 'home' || button.dataset.view === 'registrations') {
+          button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const viewId = this.dataset.view + 'View';
+            
+            // Update active tab
+            document.querySelectorAll('.tab-button').forEach(btn => {
+              btn.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Switch view
+            document.querySelectorAll('.view').forEach(view => {
+              view.classList.remove('active');
+            });
+            document.getElementById(viewId).classList.add('active');
+            
+            // Refresh data for the view
+            if (viewId === 'homeView') {
+              renderCalendar();
+            } else if (viewId === 'registrationsView') {
+              renderRegistrationsList();
+            }
+          });
+        }
+      });
+    }
+
+    // ===== VIEW TOGGLE (Grid/Table) =====
+    function setupViewToggle() {
+      document.querySelectorAll('.view-toggle-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const viewType = this.dataset.view;
           
-          // Update active tab
-          document.querySelectorAll('.tab-button').forEach(btn => {
+          // Update active button
+          document.querySelectorAll('.view-toggle-btn').forEach(btn => {
             btn.classList.remove('active');
           });
           this.classList.add('active');
           
           // Switch view
-          document.querySelectorAll('.view').forEach(view => {
-            view.classList.remove('active');
+          currentView = viewType;
+          document.querySelectorAll('.week-view-container').forEach(container => {
+            container.classList.remove('active');
           });
-          document.getElementById(viewId).classList.add('active');
+          document.getElementById(viewType + 'View').classList.add('active');
           
-          // Refresh data for the view
-          if (viewId === 'homeView') {
-            renderCalendar();
-          } else if (viewId === 'registrationsView') {
-            renderRegistrationsList();
+          // Render the appropriate view
+          if (viewType === 'grid') {
+            renderCalendarGrid();
+          } else {
+            renderCalendarTable();
           }
         });
       });
@@ -972,13 +1214,16 @@
 
     // ===== CALENDAR RENDERING =====
     function renderCalendar() {
+      if (currentView === 'grid') {
+        renderCalendarGrid();
+      } else {
+        renderCalendarTable();
+      }
+      updateWeekLabel();
+    }
+
+    function renderCalendarGrid() {
       const grid = document.getElementById('calendarGrid');
-      const weekLabel = document.getElementById('weekLabel');
-      
-      // Update week label
-      const end = new Date(currentWeekStart);
-      end.setDate(end.getDate() + 6);
-      weekLabel.textContent = `Week ${getWeekNumber(currentWeekStart)}: ${formatDateShort(normalizeDate(currentWeekStart))} - ${formatDateShort(normalizeDate(end))}`;
       
       // Clear grid
       grid.innerHTML = '';
@@ -1024,6 +1269,90 @@
         dayCard.innerHTML = dayHeader + `<div class="time-slots">${timeSlots}</div>`;
         grid.appendChild(dayCard);
       }
+    }
+
+    function renderCalendarTable() {
+      const table = document.getElementById('calendarTable');
+      
+      // Clear table
+      table.innerHTML = '';
+      
+      // Create header row
+      const headerRow = document.createElement('tr');
+      headerRow.innerHTML = '<th>Tijd</th>';
+      
+      for (let i = 0; i < 7; i++) {
+        const day = new Date(currentWeekStart);
+        day.setDate(day.getDate() + i);
+        const dayName = day.toLocaleDateString('nl-NL', { weekday: 'short' });
+        const dayNumber = day.getDate();
+        const monthName = day.toLocaleDateString('nl-NL', { month: 'short' });
+        
+        headerRow.innerHTML += `
+          <th>
+            <div class="table-day-header">
+              ${dayName} ${dayNumber} ${monthName}
+            </div>
+          </th>
+        `;
+      }
+      table.appendChild(headerRow);
+      
+      // Create time slot rows
+      const timeSlots = [
+        { key: 'T1', label: '10:00 - 12:00', period: 'Ochtend' },
+        { key: 'T2', label: '15:00 - 17:30', period: 'Middag' },
+        { key: 'T3', label: '18:30 - 20:00', period: 'Avond' }
+      ];
+      
+      timeSlots.forEach((slot, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            <div class="table-time-header">
+              <div>${slot.label}</div>
+              <small>${slot.period}</small>
+            </div>
+          </td>
+        `;
+        
+        for (let i = 0; i < 7; i++) {
+          const day = new Date(currentWeekStart);
+          day.setDate(day.getDate() + i);
+          const dateString = normalizeDate(day);
+          
+          const status = getSlotStatus(dateString, slot.key);
+          const cell = document.createElement('td');
+          
+          cell.innerHTML = `
+            <div class="table-slot ${status.class}" 
+                 data-date="${dateString}" 
+                 data-time="${slot.key}"
+                 onclick="openRegistrationModal('${dateString}', '${slot.key}')">
+              <div class="slot-details">
+                <div class="slot-status">${status.text}</div>
+                ${status.vaderBadge ? '<div class="slot-badges"><span class="badge vader">Vader mee</span></div>' : ''}
+              </div>
+            </div>
+          `;
+          
+          row.appendChild(cell);
+        }
+        
+        table.appendChild(row);
+      });
+    }
+
+    function updateWeekLabel() {
+      const weekLabel = document.getElementById('weekLabel');
+      const end = new Date(currentWeekStart);
+      end.setDate(end.getDate() + 6);
+      
+      const startFormatted = formatDateShort(normalizeDate(currentWeekStart));
+      const endFormatted = formatDateShort(normalizeDate(end));
+      const weekNumber = getWeekNumber(currentWeekStart);
+      
+      weekLabel.textContent = `Week ${weekNumber}: ${startFormatted} - ${endFormatted}`;
     }
 
     function getSlotStatus(dateString, timeKey) {
